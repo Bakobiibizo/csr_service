@@ -1,0 +1,22 @@
+# Policy configuration for the CSR Service.
+# Values here can be overridden by environment variables prefixed with CSR_POLICY_
+# Priority: environment > this file > code defaults
+
+retrieval:
+  # Number of rules to retrieve per strictness level
+  k_low: 6
+  k_medium: 10
+  k_high: 14
+
+thresholds:
+  # Minimum confidence for a violation to survive at each strictness level.
+  # Below this, violations are downgraded to warnings.
+  violation_low: 0.85
+  violation_medium: 0.75
+  violation_high: 0.70
+
+defaults:
+  # Default min_confidence for confidence gating (can be overridden per-request)
+  min_confidence: 0.55
+  # Default max observations returned (can be overridden per-request)
+  max_observations: 25

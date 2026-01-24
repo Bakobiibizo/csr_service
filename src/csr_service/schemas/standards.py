@@ -1,3 +1,7 @@
+"""
+Schemas for standards-related requests and responses.
+"""
+
 from typing import Literal
 
 from pydantic import BaseModel

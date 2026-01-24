@@ -1,4 +1,5 @@
-"""Async LLM client wrapper using the OpenAI SDK.
+"""
+Async LLM client wrapper using the OpenAI SDK.
 
 Connects to an Ollama instance (or any OpenAI-compatible endpoint) and
 sends structured chat completions with JSON response format. Temperature

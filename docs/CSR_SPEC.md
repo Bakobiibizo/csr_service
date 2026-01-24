@@ -293,7 +293,7 @@ Policy version string must be emitted.
 Completion criteria:
 
 1. `GET /v1/standards` returns sets
-2. `POST /v1/review` returns valid structured observations in <1s for a 300-word input
+2. `POST /v1/review` returns valid structured observations (~1–2s on local 27B-class model; sub-second on smaller models or GPU-backed inference)
 3. strictness changes output behavior
 4. evaluation harness runs and prints repeatability + latency
 

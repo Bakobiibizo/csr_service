@@ -2,6 +2,7 @@
 
 Validates requests against the configured CSR_AUTH_TOKEN. Unauthenticated
 requests receive a 401 with a structured error body.
+Just using a simple bearer token for the demo, but this could be replaced with a more robust authentication system.
 """
 
 from fastapi import Depends, HTTPException

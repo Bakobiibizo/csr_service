@@ -1,4 +1,6 @@
-"""GET /v1/standards endpoint listing available standards sets."""
+"""
+GET /v1/standards endpoint listing available standards sets.
+"""
 
 from fastapi import APIRouter, Request
 

@@ -23,7 +23,7 @@ from ..schemas.standards import StandardsSet
 from ..standards.retriever import StandardsRetriever
 from .model_client import ModelClient
 from .parser import parse_model_output
-from .prompt import SYSTEM_PROMPT, build_user_prompt
+from .prompt import build_user_prompt, get_system_prompt
 
 
 async def run_review(
@@ -46,7 +46,7 @@ async def run_review(
 
     # Call model
     try:
-        raw_output, usage = await model_client.generate(SYSTEM_PROMPT, user_prompt)
+        raw_output, usage = await model_client.generate(get_system_prompt(), user_prompt)
     except Exception as e:
         logger.error(f"Model failure: {e}")
         latency_ms = int((time.time() - start_time) * 1000)
@@ -72,7 +72,7 @@ async def run_review(
         errors.append(
             Error(
                 code="MODEL_PARSE_FAILURE",
-                message="Could not extract valid observations from model output",
+                message="Model returned output but no valid observations could be extracted",
             )
         )
 

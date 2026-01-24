@@ -1,4 +1,5 @@
-"""Multi-layer JSON extraction and observation validation.
+"""
+Multi-layer JSON extraction and observation validation.
 
 Handles non-ideal model outputs through three extraction strategies:
 1. Direct JSON parse

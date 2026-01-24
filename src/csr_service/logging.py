@@ -24,7 +24,6 @@ class RequestIdFilter(logging.Filter):
         record.request_id = request_id_ctx.get("") or "-"
         return True
 
-
 def setup_logging() -> logging.Logger:
     logger = logging.getLogger("csr_service")
     if not logger.handlers:
@@ -40,3 +39,17 @@ def setup_logging() -> logging.Logger:
 
 
 logger = setup_logging()
+
+# Helper function to print settings with sensitive data masked
+def print_settings(obj: object) -> None:
+    if not obj:
+        return
+    
+    logger.info("=== Settings ===")
+    if hasattr(obj, "__dict__"):
+        for key, value in obj.__dict__.items():
+            if "auth" in key.lower() or "token" in key.lower():
+                logger.info(f"{key}: {'*' * len(str(value))}")
+            else:
+                logger.info(f"{key}: {value}")
+    
