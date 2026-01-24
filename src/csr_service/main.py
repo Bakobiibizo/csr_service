@@ -48,7 +48,7 @@ app = FastAPI(title="Content Standards Review Service", version="0.1.0", lifespa
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[o.strip() for o in settings.cors_origins.split(",")],
     allow_methods=["*"],
     allow_headers=["*"],
 )

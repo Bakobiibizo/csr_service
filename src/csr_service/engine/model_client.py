@@ -17,22 +17,25 @@ class ModelClient:
     def __init__(self):
         self.client = AsyncOpenAI(
             base_url=settings.ollama_base_url,
-            api_key="ollama",
+            api_key=settings.model_api_key,
             timeout=settings.model_timeout,
         )
         self.model_id = settings.model_id
 
     async def generate(self, system_prompt: str, user_prompt: str) -> tuple[str, Usage]:
         try:
-            response = await self.client.chat.completions.create(
-                model=self.model_id,
-                messages=[
+            kwargs: dict = {
+                "model": self.model_id,
+                "messages": [
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt},
                 ],
-                temperature=0.1,
-                response_format={"type": "json_object"},
-            )
+                "temperature": settings.model_temperature,
+            }
+            if settings.model_json_mode:
+                kwargs["response_format"] = {"type": "json_object"}
+
+            response = await self.client.chat.completions.create(**kwargs)
             content = response.choices[0].message.content or ""
             usage = Usage()
             if response.usage:

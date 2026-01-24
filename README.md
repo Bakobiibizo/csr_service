@@ -125,7 +125,7 @@ Reviews content against a standards set. Requires `Authorization: Bearer <token>
 }
 ```
 
-See [docs/api.md](docs/api.md) for full API reference.
+See [docs/API.md](docs/API.md) for full API reference.
 
 ## How It Works
 
@@ -133,7 +133,7 @@ See [docs/api.md](docs/api.md) for full API reference.
 
 2. **LLM Analysis** - The content and retrieved rules are sent to the model with a structured prompt enforcing JSON output. The model identifies issues, locates them in the text via character spans, and assigns severity/confidence.
 
-3. **Parsing** - Multi-layer JSON extraction handles non-ideal model outputs (direct parse, code-fence extraction, brace extraction). Invalid observations are discarded individually.
+3. **Parsing** - Multi-layer JSON extraction handles non-ideal model outputs (direct parse, code-fence extraction, brace extraction). Invalid observations are discarded individually, allowing partial salvage of model output instead of full request failure.
 
 4. **Policy** - Deterministic post-processing applies confidence gating, strictness-based severity bias, deduplication, sorting, and truncation.
 

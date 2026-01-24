@@ -10,10 +10,8 @@ from pydantic import BaseModel, Field
 class Observation(BaseModel):
     id: str
     span: list[int] | None = None
-    severity: Literal["info", "warning", "violation"]
-    category: Literal[
-        "clarity", "accuracy", "structure", "accessibility", "pedagogy", "compliance", "other"
-    ]
+    severity: str
+    category: str
     standard_ref: str
     message: str
     suggested_fix: str | None = None

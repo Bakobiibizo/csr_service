@@ -5,6 +5,7 @@ injecting it into every log record via a custom filter.
 """
 
 import logging
+import os
 import uuid
 from contextvars import ContextVar
 
@@ -34,7 +35,8 @@ def setup_logging() -> logging.Logger:
         handler.setFormatter(formatter)
         handler.addFilter(RequestIdFilter())
         logger.addHandler(handler)
-        logger.setLevel(logging.INFO)
+        level = os.environ.get("CSR_LOG_LEVEL", "INFO").upper()
+        logger.setLevel(getattr(logging, level, logging.INFO))
     return logger
 
 

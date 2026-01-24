@@ -108,6 +108,11 @@ class PromptsConfig(BaseModel):
         "medium": "Apply standard review criteria.",
         "high": "Be thorough and strict. Flag any potential issue, even minor ones.",
     }
+    valid_severities: list[str] = ["info", "warning", "violation"]
+    valid_categories: list[str] = [
+        "clarity", "accuracy", "structure", "accessibility",
+        "pedagogy", "compliance", "other",
+    ]
 
 
 def _apply_env_overrides(data: dict) -> dict:
@@ -162,13 +167,18 @@ class Settings(BaseSettings):
 
     ollama_base_url: str = "http://localhost:11435/v1"
     model_id: str = "llama3"
+    model_api_key: str = "ollama"
     model_timeout: float = 30.0
+    model_temperature: float = 0.1
+    model_json_mode: bool = True
     standards_dir: str = "standards"
     auth_token: str = "demo-token"
     max_content_length: int = 50000
     policy_version: str = "1.0.0"
     policy_config_path: str = "config/policy.yaml"
     prompts_config_path: str = "config/prompts.yaml"
+    cors_origins: str = "*"
+    log_level: str = "INFO"
     host: str = "0.0.0.0"
     port: int = 9020
 
