@@ -53,11 +53,76 @@ def check_repeatability(runs: list[dict]) -> dict:
 
 def compute_latency_stats(latencies: list[int]) -> dict:
     if not latencies:
-        return {"mean_ms": 0, "p95_ms": 0}
+        return {"mean_ms": 0, "min_ms": 0, "max_ms": 0, "p95_ms": 0}
 
     latencies_sorted = sorted(latencies)
     mean = sum(latencies) / len(latencies)
     p95_idx = int(len(latencies_sorted) * 0.95)
     p95 = latencies_sorted[min(p95_idx, len(latencies_sorted) - 1)]
 
-    return {"mean_ms": int(mean), "p95_ms": p95}
+    return {
+        "mean_ms": int(mean),
+        "min_ms": latencies_sorted[0],
+        "max_ms": latencies_sorted[-1],
+        "p95_ms": p95,
+    }
+
+
+def check_expectations(
+    response_data: dict, expectations: dict, expect_error: bool = False
+) -> list[dict]:
+    """Check response against case expectations.
+
+    Returns list of {"check": str, "passed": bool, "detail": str}.
+    """
+    results = []
+
+    if expect_error:
+        expected_code = expectations.get("expected_error_code")
+        if expected_code:
+            error_text = response_data.get("_error", "")
+            passed = expected_code in error_text
+            results.append({
+                "check": "expected_error_code",
+                "passed": passed,
+                "detail": f"expected '{expected_code}' in response"
+                + ("" if passed else f", got: {error_text[:80]}"),
+            })
+        return results
+
+    observations = response_data.get("observations", [])
+    obs_count = len(observations)
+
+    min_obs = expectations.get("min_obs")
+    max_obs = expectations.get("max_obs")
+    if min_obs is not None and max_obs is not None:
+        passed = min_obs <= obs_count <= max_obs
+        results.append({
+            "check": "observation_count",
+            "passed": passed,
+            "detail": f"{obs_count} (expected {min_obs}-{max_obs})",
+        })
+
+    expected_severities = expectations.get("expected_severities")
+    if expected_severities:
+        found_severities = {o.get("severity") for o in observations}
+        for sev in expected_severities:
+            passed = sev in found_severities
+            results.append({
+                "check": f"expected_severity:{sev}",
+                "passed": passed,
+                "detail": f"{'found' if passed else 'NOT found'} in observations",
+            })
+
+    expected_refs = expectations.get("expected_refs")
+    if expected_refs:
+        found_refs = {o.get("standard_ref") for o in observations}
+        for ref in expected_refs:
+            passed = ref in found_refs
+            results.append({
+                "check": f"expected_ref:{ref}",
+                "passed": passed,
+                "detail": f"{'found' if passed else 'NOT found'} in observations",
+            })
+
+    return results

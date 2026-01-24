@@ -2,6 +2,13 @@
   "id": "case_06",
   "description": "Ambiguous standard match - content touches multiple rules",
   "expect_error": false,
+  "expectations": {
+    "min_obs": 0,
+    "max_obs": 5,
+    "expected_severities": [],
+    "expected_refs": [],
+    "expected_error_code": null
+  },
   "request": {
     "content": "The trainee will demonstrate proficiency in basic seamanship.\n\nChapter 3: Line Handling\n\nWhen handling mooring lines, always be aware of the snap-back zone. Lines under tension can part without warning and cause serious injury or death.\n\nTo secure a line to a cleat, first pass the line around the base, then make figure-eight turns, and finish with a half-hitch on the last turn. Practice this procedure until you can do it confidently.",
     "standards_set": "naval_v3",

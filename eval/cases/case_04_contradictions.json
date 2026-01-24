@@ -2,6 +2,13 @@
   "id": "case_04",
   "description": "Internal contradictions - conflicting statements",
   "expect_error": false,
+  "expectations": {
+    "min_obs": 1,
+    "max_obs": 6,
+    "expected_severities": ["violation"],
+    "expected_refs": ["NAV-TR-3.2.2"],
+    "expected_error_code": null
+  },
   "request": {
     "content": "All personnel must wear hearing protection when entering the engine room. Sound levels in the engine room are typically below 70 dB and pose no hearing risk. The engine room noise level consistently exceeds 100 dB during operations. Hearing protection is optional in engineering spaces during normal operations.",
     "standards_set": "naval_v3",
