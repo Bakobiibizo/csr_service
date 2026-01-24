@@ -1,0 +1,126 @@
+{
+  "standards_set": "naval_v3",
+  "name": "Naval Training Standards v3",
+  "version": "3.0",
+  "rules": [
+    {
+      "standard_ref": "NAV-TR-3.1.1",
+      "title": "Learning objectives must be measurable",
+      "body": "All learning objectives must use observable, measurable action verbs from Bloom's taxonomy (e.g., identify, demonstrate, calculate). Avoid vague verbs such as understand, know, learn, appreciate, or be familiar with.",
+      "tags": ["objectives", "measurable", "blooms"],
+      "severity_default": "violation"
+    },
+    {
+      "standard_ref": "NAV-TR-3.1.2",
+      "title": "Objectives must specify conditions",
+      "body": "Each learning objective must state the conditions under which the learner will perform the task, including available tools, references, equipment, and environmental constraints.",
+      "tags": ["objectives", "conditions"],
+      "severity_default": "warning"
+    },
+    {
+      "standard_ref": "NAV-TR-3.1.3",
+      "title": "Objectives must include performance standards",
+      "body": "Each learning objective must include a measurable performance standard (accuracy, speed, or quality threshold) the learner must achieve.",
+      "tags": ["objectives", "performance", "standards"],
+      "severity_default": "warning"
+    },
+    {
+      "standard_ref": "NAV-TR-3.2.1",
+      "title": "Content must align with stated objectives",
+      "body": "All instructional content must directly support at least one stated learning objective. Content that does not map to an objective must be removed or an objective added.",
+      "tags": ["alignment", "objectives", "content"],
+      "severity_default": "warning"
+    },
+    {
+      "standard_ref": "NAV-TR-3.2.2",
+      "title": "Content must be technically accurate",
+      "body": "All technical information, procedures, specifications, and data must be verified against authoritative sources. No contradictory statements are permitted within the same document.",
+      "tags": ["accuracy", "technical", "consistency"],
+      "severity_default": "violation"
+    },
+    {
+      "standard_ref": "NAV-TR-3.3.1",
+      "title": "Acronyms must be defined on first use",
+      "body": "All acronyms and abbreviations must be spelled out in full on first use, followed by the acronym in parentheses. A glossary must be provided for documents exceeding 10 pages.",
+      "tags": ["acronyms", "accessibility", "definitions"],
+      "severity_default": "warning"
+    },
+    {
+      "standard_ref": "NAV-TR-3.3.2",
+      "title": "Reading level must be appropriate",
+      "body": "Instructional content must not exceed a 12th-grade reading level unless the target audience requires specialized terminology. Sentences should average 15-20 words.",
+      "tags": ["readability", "accessibility", "language"],
+      "severity_default": "info"
+    },
+    {
+      "standard_ref": "NAV-TR-3.3.3",
+      "title": "Jargon must be contextually explained",
+      "body": "Domain-specific terminology must be defined in context or in a supporting glossary when first introduced. Assume the reader has baseline but not expert knowledge.",
+      "tags": ["jargon", "terminology", "accessibility"],
+      "severity_default": "info"
+    },
+    {
+      "standard_ref": "NAV-TR-3.4.1",
+      "title": "Procedures must use numbered steps",
+      "body": "All procedural instructions must be presented as numbered sequential steps. Each step must contain a single action. Do not embed procedures within narrative paragraphs.",
+      "tags": ["procedures", "structure", "steps"],
+      "severity_default": "warning"
+    },
+    {
+      "standard_ref": "NAV-TR-3.4.2",
+      "title": "Paragraphs must not exceed 150 words",
+      "body": "No single paragraph in instructional content should exceed 150 words. Long paragraphs must be broken into logical sub-sections with appropriate headings.",
+      "tags": ["structure", "paragraphs", "length"],
+      "severity_default": "info"
+    },
+    {
+      "standard_ref": "NAV-TR-3.4.3",
+      "title": "Headings must follow hierarchical structure",
+      "body": "Document headings must follow a consistent hierarchical structure (H1 > H2 > H3). No heading level may be skipped. Each section must have a descriptive heading.",
+      "tags": ["structure", "headings", "hierarchy"],
+      "severity_default": "warning"
+    },
+    {
+      "standard_ref": "NAV-TR-3.5.1",
+      "title": "Safety warnings must precede hazardous steps",
+      "body": "All safety warnings, cautions, and notes must appear before the procedural step they pertain to, never after. Use standard signal words: DANGER, WARNING, CAUTION, NOTE.",
+      "tags": ["safety", "warnings", "procedures"],
+      "severity_default": "violation"
+    },
+    {
+      "standard_ref": "NAV-TR-3.5.2",
+      "title": "Critical steps must be clearly identified",
+      "body": "Steps that are critical to safety or mission success must be visually distinguished (bold, boxed, or flagged) and explicitly labeled as critical.",
+      "tags": ["critical", "safety", "procedures"],
+      "severity_default": "warning"
+    },
+    {
+      "standard_ref": "NAV-TR-3.6.1",
+      "title": "Examples must illustrate key concepts",
+      "body": "Each major concept or procedure must include at least one example or illustration. Examples must be realistic and relevant to the learner's operational context.",
+      "tags": ["examples", "pedagogy", "illustration"],
+      "severity_default": "info"
+    },
+    {
+      "standard_ref": "NAV-TR-3.6.2",
+      "title": "Practice opportunities must be provided",
+      "body": "Instructional content must include practice exercises or knowledge checks after each major section. Feedback must be provided for incorrect responses.",
+      "tags": ["practice", "assessment", "pedagogy"],
+      "severity_default": "info"
+    },
+    {
+      "standard_ref": "NAV-TR-3.7.1",
+      "title": "References must be current and complete",
+      "body": "All references to external documents, regulations, or standards must include full citation (title, document number, date, section). References older than 5 years must be verified as current.",
+      "tags": ["references", "citations", "compliance"],
+      "severity_default": "warning"
+    },
+    {
+      "standard_ref": "NAV-TR-3.7.2",
+      "title": "Version control information required",
+      "body": "All instructional documents must display version number, effective date, and responsible authority. Revision history must be maintained for auditable changes.",
+      "tags": ["version", "metadata", "compliance"],
+      "severity_default": "info"
+    }
+  ]
+}

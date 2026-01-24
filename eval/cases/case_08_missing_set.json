@@ -1,0 +1,10 @@
+{
+  "id": "case_08",
+  "description": "Missing standards set - should return 422",
+  "expect_error": true,
+  "request": {
+    "content": "Some valid instructional content for review.",
+    "standards_set": "nonexistent_standards",
+    "strictness": "medium"
+  }
+}

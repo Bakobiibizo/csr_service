@@ -1,0 +1,10 @@
+{
+  "id": "case_07",
+  "description": "Malformed input - empty content",
+  "expect_error": true,
+  "request": {
+    "content": "   ",
+    "standards_set": "naval_v3",
+    "strictness": "medium"
+  }
+}

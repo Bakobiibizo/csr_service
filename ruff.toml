@@ -1,0 +1,6 @@
+line-length = 100
+target-version = "py311"
+
+[lint]
+extend-select = ["I", "UP", "PL", "RUF"]
+ignore = ["E501", "PLR2004", "PLC0415"]

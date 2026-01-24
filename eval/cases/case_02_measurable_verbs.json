@@ -1,0 +1,10 @@
+{
+  "id": "case_02",
+  "description": "Missing measurable verbs in objectives - should flag violations",
+  "expect_error": false,
+  "request": {
+    "content": "Learning Objective: The student will understand the principles of celestial navigation and be familiar with the use of a sextant. The trainee should know how to appreciate the importance of accurate position fixing and learn the relationship between time and longitude.",
+    "standards_set": "naval_v3",
+    "strictness": "medium"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "id": "case_05",
+  "description": "Structure problems - long paragraphs and inline procedures",
+  "expect_error": false,
+  "request": {
+    "content": "To properly secure the main space for sea, the engineering watch team must first verify all hull openings are closed by checking each compartment on the damage control closure log, then ensure the bilge pumps are operational by testing each pump sequentially starting with the forward pump and working aft while simultaneously monitoring the bilge levels on the central monitoring system, after which the watch officer must contact damage control central to report readiness and obtain permission to set material condition Yoke throughout the engineering spaces, making sure to dog all doors and hatches using the proper dogging sequence as described in the ship's damage control book, and finally conduct a walkthrough inspection of all spaces to verify compliance before reporting to the OOD that the engineering department is secured for sea detail operations in accordance with the commanding officer's standing orders for underway operations.",
+    "standards_set": "naval_v3",
+    "strictness": "medium"
+  }
+}
