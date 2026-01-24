@@ -22,7 +22,7 @@ from ..schemas.response import Error, Meta, ReviewResponse, Usage
 from ..schemas.standards import StandardsSet
 from ..standards.retriever import StandardsRetriever
 from .model_client import ModelClient
-from .parser import parse_model_output
+from .parser import extract_json, parse_model_output
 from .prompt import build_user_prompt, get_system_prompt
 
 
@@ -68,13 +68,16 @@ async def run_review(
     observations = parse_model_output(raw_output, len(request.content), known_refs)
 
     if not observations and raw_output.strip():
-        # Model produced output but we couldn't parse valid observations
-        errors.append(
-            Error(
-                code="MODEL_PARSE_FAILURE",
-                message="Model returned output but no valid observations could be extracted",
+        # Only report parse failure if the JSON itself was unparseable or
+        # lacked an observations key — not if observations was legitimately empty
+        parsed = extract_json(raw_output)
+        if parsed is None or "observations" not in parsed:
+            errors.append(
+                Error(
+                    code="MODEL_PARSE_FAILURE",
+                    message="Model returned output but no valid observations could be extracted",
+                )
             )
-        )
 
     # Apply policy
     observations = apply_policy(
