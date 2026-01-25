@@ -202,7 +202,8 @@ def run_eval(base_url: str, token: str, cases_dir: str, n: int, output_path: str
         "--json-output",
         str(output_path),
     ]
-    print(f"  Running: {shlex.join(cmd)}")
+    cmd_display = " ".join(shlex.quote(arg) for arg in cmd)
+    print(f"  Running: {cmd_display}")
     result = subprocess.run(
         cmd,
         capture_output=True,
