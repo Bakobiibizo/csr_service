@@ -2,6 +2,13 @@
   "id": "case_08",
   "description": "Missing standards set - should return 422",
   "expect_error": true,
+  "expectations": {
+    "min_obs": null,
+    "max_obs": null,
+    "expected_severities": null,
+    "expected_refs": null,
+    "expected_error_code": "STANDARDS_NOT_FOUND"
+  },
   "request": {
     "content": "Some valid instructional content for review.",
     "standards_set": "nonexistent_standards",

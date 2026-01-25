@@ -1,32 +1,6 @@
 # Content Standards Review Service (CSRS)
 
-AI-powered API that reviews instructional content against standards rules and returns structured, UI-ready observations with traceable citations.
-
-## Architecture
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                    POST /v1/review                       │
-│                         │                               │
-│  ┌──────────┐    ┌──────▼──────┐    ┌───────────────┐   │
-│  │ Standards │    │  TF-IDF     │    │  LLM (Ollama) │   │
-│  │   JSON    │───▶│  Retriever  │───▶│  gemma3:27b   │   │
-│  │  (rules)  │    │  (top-k)    │    │  via OpenAI   │   │
-│  └──────────┘    └─────────────┘    └───────┬───────┘   │
-│                                             │           │
-│                  ┌──────────────┐    ┌───────▼───────┐   │
-│                  │   Policy     │◀───│    Parser     │   │
-│                  │  (gate/bias/ │    │  (multi-layer │   │
-│                  │   dedup/sort)│    │   extraction) │   │
-│                  └──────┬───────┘    └───────────────┘   │
-│                         │                               │
-│                  ┌──────▼───────┐                        │
-│                  │  ReviewResp  │                        │
-│                  │ (observations│                        │
-│                  │  + meta)     │                        │
-│                  └──────────────┘                        │
-└─────────────────────────────────────────────────────────┘
-```
+Artificial Intelligence (AI)-powered Application Programming Interface (API) that reviews instructional content against standards rules and returns structured, User Interface (UI)-ready observations with traceable citations.
 
 ## Quick Start
 
@@ -57,13 +31,15 @@ All settings are configured via environment variables with `CSR_` prefix:
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `CSR_OLLAMA_BASE_URL` | `http://localhost:11435/v1` | Ollama OpenAI-compatible endpoint |
-| `CSR_MODEL_ID` | `llama3` | Model to use for reviews |
+| `CSR_MODEL_ID` | `qwen2.5:7b-instruct` | Model to use for reviews |
 | `CSR_MODEL_TIMEOUT` | `30.0` | Model request timeout (seconds) |
-| `CSR_STANDARDS_DIR` | `standards` | Directory containing standards JSON files |
+| `CSR_STANDARDS_DIR` | `standards` | Directory containing standards JavaScript Object Notation (JSON) files |
 | `CSR_AUTH_TOKEN` | `demo-token` | Bearer token for API authentication |
 | `CSR_MAX_CONTENT_LENGTH` | `50000` | Maximum content length (characters) |
 | `CSR_POLICY_VERSION` | `1.0.0` | Policy version reported in responses |
 | `CSR_PORT` | `9020` | Default server port |
+| `CSR_SINGLE_RULE_MODE` | `false` | Evaluate one rule per request (parallel) |
+| `CSR_SINGLE_RULE_PARALLEL` | `true` | Run single-rule evaluations in parallel |
 
 ## API Endpoints
 
@@ -125,15 +101,17 @@ Reviews content against a standards set. Requires `Authorization: Bearer <token>
 }
 ```
 
-See [docs/api.md](docs/api.md) for full API reference.
+See [docs/API.md](docs/API.md) for full Application Programming Interface (API) reference.
 
 ## How It Works
 
-1. **Retrieval** - TF-IDF vectorizes the input content and retrieves the top-k most relevant rules from the standards set (k varies by strictness: low=6, medium=10, high=14)
+![Request Flow](docs/request-flow.png)
 
-2. **LLM Analysis** - The content and retrieved rules are sent to the model with a structured prompt enforcing JSON output. The model identifies issues, locates them in the text via character spans, and assigns severity/confidence.
+1. **Retrieval** - Term Frequency–Inverse Document Frequency (TF-IDF) vectorizes the input content and retrieves the top-k most relevant rules from the standards set (k varies by strictness: low=6, medium=10, high=14)
 
-3. **Parsing** - Multi-layer JSON extraction handles non-ideal model outputs (direct parse, code-fence extraction, brace extraction). Invalid observations are discarded individually.
+2. **LLM Analysis** - The content and retrieved rules are sent to the Large Language Model (LLM) with a structured prompt enforcing JSON output. The model identifies issues, locates them in the text via character spans, and assigns severity/confidence.
+
+3. **Parsing** - Multi-layer JSON extraction handles non-ideal model outputs (direct parse, code-fence extraction, brace extraction). Invalid observations are discarded individually, allowing partial salvage of model output instead of full request failure.
 
 4. **Policy** - Deterministic post-processing applies confidence gating, strictness-based severity bias, deduplication, sorting, and truncation.
 
@@ -141,7 +119,7 @@ See [docs/api.md](docs/api.md) for full API reference.
 
 ```
 src/csr_service/
-├── main.py              # FastAPI app, lifespan, CORS
+├── main.py              # FastAPI app, lifespan, Cross-Origin Resource Sharing (CORS) configuration
 ├── config.py            # Environment-based settings
 ├── auth.py              # Bearer token dependency
 ├── logging.py           # Structured logging with request_id
@@ -221,3 +199,27 @@ The service never breaks the response schema:
 | Content too long | HTTP 422 `CONTENT_TOO_LONG` |
 | Unknown standards set | HTTP 422 `STANDARDS_NOT_FOUND` |
 | Missing/invalid auth | HTTP 401 `AUTH_FAILED` |
+
+## Research & Experiments
+
+This project uses hypothesis-driven development to systematically improve the AI pipeline. See:
+
+- **[docs/RESEARCH_OVERVIEW.md](docs/RESEARCH_OVERVIEW.md)** — Full analysis of methodology, experiments, and findings
+- **[eval/experiments/](eval/experiments/)** — Individual experiment documentation and results
+
+### Key Findings
+
+| Experiment | Hypothesis | Result |
+|------------|-----------|--------|
+| H1: Forced Traversal | Passive prompts cause under-detection | **Supported** — Per-rule evaluation fixed silent compliance |
+| H2: Single-Rule Mode | Narrower scope improves accuracy | **Partial** — Better coverage, but over-detection |
+
+### Current Status
+
+The system successfully identifies standards violations but requires calibration:
+- Prompt engineering significantly impacts detection (H1)
+- Evaluation scope affects precision/recall tradeoff (H2)
+- Severity classification needs improvement
+- See [RESEARCH_OVERVIEW.md](docs/RESEARCH_OVERVIEW.md) for detailed recommendations
+
+**Note**: This project is meant as a proof of concept demo and should not be used in production. All data is synthetic and for demonstration purposes only.

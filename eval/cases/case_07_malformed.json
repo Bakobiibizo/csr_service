@@ -2,6 +2,13 @@
   "id": "case_07",
   "description": "Malformed input - empty content",
   "expect_error": true,
+  "expectations": {
+    "min_obs": null,
+    "max_obs": null,
+    "expected_severities": null,
+    "expected_refs": null,
+    "expected_error_code": "EMPTY_CONTENT"
+  },
   "request": {
     "content": "   ",
     "standards_set": "naval_v3",

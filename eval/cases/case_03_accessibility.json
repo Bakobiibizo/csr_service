@@ -2,6 +2,13 @@
   "id": "case_03",
   "description": "Accessibility issues - unexplained acronyms and jargon",
   "expect_error": false,
+  "expectations": {
+    "min_obs": 2,
+    "max_obs": 10,
+    "expected_severities": ["warning"],
+    "expected_refs": ["NAV-TR-3.3.1"],
+    "expected_error_code": null
+  },
   "request": {
     "content": "The OOD must coordinate with the JOOD and BMOW to ensure proper MOBOARD procedures are followed during the UNREP evolution. The CO's night orders should reference the current OPTASK and ensure all CIC watchstanders have reviewed the latest OPORD annex regarding the EMCON posture for transit through the AOA.",
     "standards_set": "naval_v3",

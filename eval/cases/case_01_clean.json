@@ -2,6 +2,13 @@
   "id": "case_01",
   "description": "Clean content with measurable objectives - should produce 0-2 infos",
   "expect_error": false,
+  "expectations": {
+    "min_obs": 0,
+    "max_obs": 3,
+    "expected_severities": [],
+    "expected_refs": [],
+    "expected_error_code": null
+  },
   "request": {
     "content": "Learning Objective: Upon completion of this module, the trainee will be able to identify the three primary types of naval navigation aids using standard charts and reference materials with 90% accuracy.\n\nStep 1. Locate the chart legend on the provided nautical chart.\nStep 2. Identify each navigation aid symbol in the designated area.\nStep 3. Record the type, location, and characteristics of each aid.\n\nNOTE: Refer to USCG Light List for current aid characteristics.",
     "standards_set": "naval_v3",

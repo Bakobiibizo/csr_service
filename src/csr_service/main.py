@@ -12,10 +12,15 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .config import settings
 from .engine.model_client import ModelClient
-from .logging import logger
+from .logging import logger, print_settings
 from .routes import health_router, review_router, standards_router
 from .standards.loader import load_standards
 from .standards.retriever import StandardsRetriever
+
+logger.info("Starting CSR Service")
+
+# Print settings with sensitive data masked
+print_settings(settings)
 
 
 @asynccontextmanager
@@ -38,15 +43,19 @@ async def lifespan(app: FastAPI):
     yield
 
 
+# Initialize FastAPI app
 app = FastAPI(title="Content Standards Review Service", version="0.1.0", lifespan=lifespan)
 
+# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[o.strip() for o in settings.cors_origins.split(",")],
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+
+# Include routers
 app.include_router(health_router)
 app.include_router(standards_router)
 app.include_router(review_router)

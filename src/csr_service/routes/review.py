@@ -1,4 +1,5 @@
-"""POST /v1/review endpoint.
+"""
+POST /v1/review endpoint.
 
 Accepts instructional content and a standards set, runs the full review
 pipeline, and returns structured observations. Requires bearer token auth.

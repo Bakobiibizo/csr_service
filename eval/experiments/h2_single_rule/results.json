@@ -1,0 +1,259 @@
+{
+  "backend": "ollama",
+  "repeats": 3,
+  "cases_passed": 3,
+  "cases_total": 8,
+  "expectations_passed": 11,
+  "expectations_total": 17,
+  "overall_latency": {
+    "mean_ms": 24844,
+    "min_ms": 6,
+    "max_ms": 57850,
+    "p95_ms": 57850
+  },
+  "results": [
+    {
+      "case_id": "case_01",
+      "description": "Clean content with measurable objectives - should produce 0-2 infos",
+      "latency": {
+        "mean_ms": 32561,
+        "min_ms": 31443,
+        "max_ms": 34479,
+        "p95_ms": 34479
+      },
+      "pass": false,
+      "repeatability": {
+        "span_stability": 0.7,
+        "severity_stability": 1.0
+      },
+      "observation_counts": [
+        5,
+        5,
+        6
+      ],
+      "expectation_results": [
+        {
+          "check": "observation_count",
+          "passed": false,
+          "detail": "5 (expected 0-3)"
+        }
+      ]
+    },
+    {
+      "case_id": "case_02",
+      "description": "Missing measurable verbs in objectives - should flag violations",
+      "latency": {
+        "mean_ms": 29254,
+        "min_ms": 25494,
+        "max_ms": 31274,
+        "p95_ms": 31274
+      },
+      "pass": false,
+      "repeatability": {
+        "span_stability": 0.6666666666666666,
+        "severity_stability": 1.0
+      },
+      "observation_counts": [
+        6,
+        6,
+        5
+      ],
+      "expectation_results": [
+        {
+          "check": "observation_count",
+          "passed": true,
+          "detail": "6 (expected 2-8)"
+        },
+        {
+          "check": "expected_severity:violation",
+          "passed": true,
+          "detail": "found in observations"
+        },
+        {
+          "check": "expected_severity:warning",
+          "passed": false,
+          "detail": "NOT found in observations"
+        },
+        {
+          "check": "expected_ref:NAV-TR-3.1.1",
+          "passed": true,
+          "detail": "found in observations"
+        }
+      ]
+    },
+    {
+      "case_id": "case_03",
+      "description": "Accessibility issues - unexplained acronyms and jargon",
+      "latency": {
+        "mean_ms": 51143,
+        "min_ms": 47329,
+        "max_ms": 57850,
+        "p95_ms": 57850
+      },
+      "pass": false,
+      "repeatability": {
+        "span_stability": 0.6,
+        "severity_stability": 1.0
+      },
+      "observation_counts": [
+        12,
+        15,
+        12
+      ],
+      "expectation_results": [
+        {
+          "check": "observation_count",
+          "passed": false,
+          "detail": "12 (expected 2-10)"
+        },
+        {
+          "check": "expected_severity:warning",
+          "passed": false,
+          "detail": "NOT found in observations"
+        },
+        {
+          "check": "expected_ref:NAV-TR-3.3.1",
+          "passed": true,
+          "detail": "found in observations"
+        }
+      ]
+    },
+    {
+      "case_id": "case_04",
+      "description": "Internal contradictions - conflicting statements",
+      "latency": {
+        "mean_ms": 44033,
+        "min_ms": 43198,
+        "max_ms": 44893,
+        "p95_ms": 44893
+      },
+      "pass": false,
+      "repeatability": {
+        "span_stability": 0.2222222222222222,
+        "severity_stability": 1.0
+      },
+      "observation_counts": [
+        9,
+        9,
+        9
+      ],
+      "expectation_results": [
+        {
+          "check": "observation_count",
+          "passed": false,
+          "detail": "9 (expected 1-6)"
+        },
+        {
+          "check": "expected_severity:violation",
+          "passed": true,
+          "detail": "found in observations"
+        },
+        {
+          "check": "expected_ref:NAV-TR-3.2.2",
+          "passed": true,
+          "detail": "found in observations"
+        }
+      ]
+    },
+    {
+      "case_id": "case_05",
+      "description": "Structure problems - long paragraphs and inline procedures",
+      "latency": {
+        "mean_ms": 28044,
+        "min_ms": 27936,
+        "max_ms": 28201,
+        "p95_ms": 28201
+      },
+      "pass": false,
+      "repeatability": {
+        "span_stability": 0.25,
+        "severity_stability": 1.0
+      },
+      "observation_counts": [
+        5,
+        5,
+        5
+      ],
+      "expectation_results": [
+        {
+          "check": "observation_count",
+          "passed": true,
+          "detail": "5 (expected 2-8)"
+        },
+        {
+          "check": "expected_severity:warning",
+          "passed": false,
+          "detail": "NOT found in observations"
+        },
+        {
+          "check": "expected_ref:NAV-TR-3.4.1",
+          "passed": true,
+          "detail": "found in observations"
+        }
+      ]
+    },
+    {
+      "case_id": "case_06",
+      "description": "Ambiguous standard match - content touches multiple rules",
+      "latency": {
+        "mean_ms": 13493,
+        "min_ms": 10045,
+        "max_ms": 15348,
+        "p95_ms": 15348
+      },
+      "pass": true,
+      "repeatability": {
+        "span_stability": 0.0,
+        "severity_stability": 1.0
+      },
+      "observation_counts": [
+        2,
+        3,
+        2
+      ],
+      "expectation_results": [
+        {
+          "check": "observation_count",
+          "passed": true,
+          "detail": "2 (expected 0-5)"
+        }
+      ]
+    },
+    {
+      "case_id": "case_07",
+      "description": "Malformed input - empty content",
+      "latency": {
+        "mean_ms": 6,
+        "min_ms": 6,
+        "max_ms": 7,
+        "p95_ms": 7
+      },
+      "pass": true,
+      "expectation_results": [
+        {
+          "check": "expected_error_code",
+          "passed": true,
+          "detail": "expected 'EMPTY_CONTENT' in response"
+        }
+      ]
+    },
+    {
+      "case_id": "case_08",
+      "description": "Missing standards set - should return 422",
+      "latency": {
+        "mean_ms": 6,
+        "min_ms": 6,
+        "max_ms": 6,
+        "p95_ms": 6
+      },
+      "pass": true,
+      "expectation_results": [
+        {
+          "check": "expected_error_code",
+          "passed": true,
+          "detail": "expected 'STANDARDS_NOT_FOUND' in response"
+        }
+      ]
+    }
+  ]
+}

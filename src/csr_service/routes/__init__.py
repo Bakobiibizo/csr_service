@@ -1,3 +1,7 @@
+"""
+Route modules for the CSR service API.
+"""
+
 from .health import router as health_router
 from .review import router as review_router
 from .standards import router as standards_router

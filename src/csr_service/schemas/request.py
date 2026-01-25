@@ -1,3 +1,7 @@
+"""
+Schemas for review requests and related data.
+"""
+
 from typing import Literal
 
 from pydantic import BaseModel, Field

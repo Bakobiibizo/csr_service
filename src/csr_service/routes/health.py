@@ -1,4 +1,6 @@
-"""GET /health endpoint for liveness and readiness checks."""
+"""
+GET /health endpoint for liveness and readiness checks.
+"""
 
 from fastapi import APIRouter, Request
 

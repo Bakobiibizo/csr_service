@@ -1,4 +1,5 @@
-"""Multi-layer JSON extraction and observation validation.
+"""
+Multi-layer JSON extraction and observation validation.
 
 Handles non-ideal model outputs through three extraction strategies:
 1. Direct JSON parse
@@ -14,19 +15,9 @@ import json
 import re
 import uuid
 
+from ..config import prompts_config
 from ..logging import logger
 from ..schemas.response import Observation
-
-VALID_SEVERITIES = {"info", "warning", "violation"}
-VALID_CATEGORIES = {
-    "clarity",
-    "accuracy",
-    "structure",
-    "accessibility",
-    "pedagogy",
-    "compliance",
-    "other",
-}
 
 
 def extract_json(raw: str) -> dict | None:
@@ -68,12 +59,12 @@ def validate_observation(
 
         # Validate severity
         severity = obs_data.get("severity", "info")
-        if severity not in VALID_SEVERITIES:
+        if severity not in prompts_config.valid_severities:
             obs_data["severity"] = "info"
 
         # Validate category
         category = obs_data.get("category", "other")
-        if category not in VALID_CATEGORIES:
+        if category not in prompts_config.valid_categories:
             obs_data["category"] = "other"
 
         # Validate span
