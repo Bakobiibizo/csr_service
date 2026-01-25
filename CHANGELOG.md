@@ -16,5 +16,5 @@
 
 ## 2026-01-25 - v0.1.1
 
-- Describe the notable changes here.
+- chore: release 0.1.1
 
