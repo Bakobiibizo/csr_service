@@ -202,10 +202,10 @@ def run_eval(base_url: str, token: str, cases_dir: str, n: int, output_path: str
         "--json-output",
         str(output_path),
     ]
-    cmd_display = " ".join(shlex.quote(part) for part in cmd)
+    cmd_display = " ".join(shlex.quote(str(part)) for part in cmd)
     print(f"  Running: {cmd_display}")
     result = subprocess.run(
-        cmd,
+        cmd_display,
         capture_output=True,
         text=True,
         cwd=str(Path(__file__).parent.parent),
