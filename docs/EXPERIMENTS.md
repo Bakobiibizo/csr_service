@@ -1,9 +1,10 @@
 # Experiments Index
 
-This document provides an overview of hypothesis-driven experiments conducted on the CSR Service pipeline.
+This document provides an overview of hypothesis-driven experiments conducted on the Content Standards Review (CSR) Service pipeline.
 
 For methodology and comprehensive analysis, see **[RESEARCH_OVERVIEW.md](RESEARCH_OVERVIEW.md)**.
 
+This project is for demonstration purposes and is not intended for production use.
 ---
 
 ## Completed Experiments
@@ -22,15 +23,15 @@ For methodology and comprehensive analysis, see **[RESEARCH_OVERVIEW.md](RESEARC
 
 ---
 
-### H4: Single-Rule Evaluation
+### 2: Single-Rule Evaluation
 
 **Hypothesis**: Evaluating content against one rule at a time improves accuracy by reducing prompt complexity.
 
 **Result**: **PARTIALLY SUPPORTED** — Improved rule coverage (found previously missing violations) but caused over-detection (too many false positives).
 
-**Documentation**: [eval/experiments/h4_single_rule/](../eval/experiments/h4_single_rule/)
-- [00_HYPOTHESIS.md](../eval/experiments/h4_single_rule/00_HYPOTHESIS.md) — Hypothesis and status
-- [01_RESULTS.md](../eval/experiments/h4_single_rule/01_RESULTS.md) — Experimental results
+**Documentation**: [eval/experiments/h2_single_rule/](../eval/experiments/h2_single_rule/)
+- [00_HYPOTHESIS.md](../eval/experiments/h2_single_rule/00_HYPOTHESIS.md) — Hypothesis and status
+- [01_RESULTS.md](../eval/experiments/h2_single_rule/01_RESULTS.md) — Experimental results
 
 ---
 
@@ -38,7 +39,7 @@ For methodology and comprehensive analysis, see **[RESEARCH_OVERVIEW.md](RESEARC
 
 ### H2: Retrieval Verification
 
-**Hypothesis**: TF-IDF retrieval may fail to surface applicable rules for short content.
+**Hypothesis**: Term Frequency–Inverse Document Frequency (TF-IDF) retrieval may fail to surface applicable rules for short content.
 
 **Status**: Not started. Requires adding debug logging to retrieval.
 
@@ -70,6 +71,6 @@ See [RESEARCH_OVERVIEW.md](RESEARCH_OVERVIEW.md) for detailed methodology explan
 | Experiment | Status | Pass Rate | Key Finding |
 |------------|--------|-----------|-------------|
 | H1 | Complete | 4/8, 13/16 exp | Fixed silent compliance |
-| H4 | Complete | 3/8, 11/17 exp | Better coverage, over-detection |
-| H2 | Pending | - | Retrieval verification needed |
-| H3 | Pending | - | Confidence gating verification needed |
+| H2 | Complete | 3/8, 11/17 exp | Better coverage, over-detection |
+| H3 | Pending | - | Retrieval verification needed |
+| H4 | Pending | - | Confidence gating verification needed |

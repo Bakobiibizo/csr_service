@@ -1,6 +1,6 @@
 # Paths Forward
 
-Practical improvements to the CSR service, ordered by effort and impact.
+Practical improvements to the Content Standards Review (CSR) service, ordered by effort and impact. This document outlines pragmatic extensions to the existing architecture based on prior experience operating similar systems.
 
 ---
 
@@ -13,7 +13,7 @@ Practical improvements to the CSR service, ordered by effort and impact.
 **Solution**: Hash-based cache keyed on `(content_hash, standards_set, strictness, model_id, policy_version)`.
 
 ```
-Request → hash(content + rules + strictness) → cache lookup
+Request → hash(content + rules + strictness, model_id, prompt_version, policy_version) → cache lookup
   ├─ HIT  → return cached ReviewResponse (latency: <5ms)
   └─ MISS → run pipeline → store result → return
 ```
@@ -22,14 +22,14 @@ Request → hash(content + rules + strictness) → cache lookup
 
 | Option | Persistence | Latency | Dependencies |
 |--------|-------------|---------|--------------|
-| In-memory LRU (`functools.lru_cache` or `cachetools.TTLCache`) | Process lifetime | ~0ms | None |
+| In-memory Least Recently Used (LRU) cache (`functools.lru_cache` or `cachetools.TTLCache`) | Process lifetime | ~0ms | None |
 | Redis | Across restarts | ~1ms | Redis server |
 | SQLite | Disk-persistent | ~2ms | None (stdlib) |
 
 **Cache invalidation triggers**:
 - `policy_version` bump (config change)
 - Standards file modification (file watcher or manual flush)
-- TTL expiry (configurable, e.g. 24h)
+- Time-to-Live (TTL) expiry (configurable, e.g. 24h)
 
 **Where it goes**: New module `src/csr_service/engine/cache.py`, called at the top of `pipeline.py:run_review()` before retrieval.
 
@@ -55,7 +55,7 @@ Request → hash(content + rules + strictness) → cache lookup
 
 **Problem**: TF-IDF matches on lexical overlap. Rules about "learner engagement" won't retrieve for content about "student motivation" because the words differ. Retrieval quality degrades with abstract/conceptual rules.
 
-**Solution**: Replace TF-IDF with dense vector embeddings. Encode rules and queries into the same embedding space, retrieve by cosine similarity on dense vectors.
+**Solution**: Augment or replace TF-IDF with dense vector embeddings. Encode rules and queries into the same embedding space, retrieve by cosine similarity on dense vectors.
 
 ```
 Current:  content → TF-IDF vectorize → cosine_similarity(sparse, sparse) → top-k rules
@@ -86,7 +86,9 @@ Proposed: content → embed(content) → cosine_similarity(dense, dense) → top
 | `sentence-transformers` (local) | 384-1024 | ~20ms | Very good | ~500MB model download |
 | OpenAI `text-embedding-3-small` | 1536 | ~100ms | Excellent | API key + network |
 
-**Recommended approach**: Use Ollama's `/api/embeddings` endpoint since the infrastructure already exists. Store the embedding matrix in memory (same as current TF-IDF matrix). For larger rule sets (>500 rules), persist to a vector store.
+**Recommended approach**: Use Ollama's `/api/embeddings` endpoint for local embedding since the infrastructure already exists. 
+When moving to production I recommend upgrading to `sentence-transformers` for better quality.
+Store the embedding matrix in memory (same as current TF-IDF matrix). For larger rule sets (>500 rules), persist to a vector store like `ChromaDB` or `Qdrant`.
 
 **Vector storage for scale**:
 
@@ -157,9 +159,9 @@ pipeline:
 
 ### Streaming Response
 
-**Problem**: 18-45s of silence before the client gets any data. Poor UX for interactive use.
+**Problem**: The current synchronous Application Programming Interface (API) produces 18–45 seconds of silence before the client receives any data. This creates poor User Experience (UX) for interactive workflows and provides no visibility into system progress during long-running reviews.
 
-**Solution**: Server-Sent Events (SSE) streaming. Send observations as they're produced.
+**Solution**: Introduce a streaming endpoint using Server-Sent Events (SSE) that emits progress and observations incrementally as the pipeline advances.
 
 ```
 POST /v1/review/stream
@@ -169,10 +171,32 @@ POST /v1/review/stream
 → event: observation data: {"id": "def", "severity": "warning", ...}
 → event: complete   data: {"meta": {...}, "total_observations": 5}
 ```
+This allows clients to render partial results, show live progress, and fail fast if needed, without waiting for full pipeline completion.
+
+**Implementation notes**: The streaming route would live alongside the existing synchronous endpoint (e.g. POST /v1/review/stream) and be implemented via FastAPI’s StreamingResponse. The architecture already lends itself to this model, as the review pipeline is explicitly staged (retrieval → analysis → parsing → policy), making it straightforward to emit events at step boundaries.
 
 **Where it goes**: New route `routes/review.py` with `StreamingResponse`. Pairs naturally with the multi-step orchestrator (stream after each step 2 completion).
 
+**Recommendation**: Although streaming is often deferred in early API designs, I recommend implementing this early rather than retrofitting it later. Streaming has a significant impact on API surface area, response schemas, client expectations, and internal orchestration boundaries. I have previously implemented this change, and the backend changes were conceptually straightforward but required touching many parts of the codebase once the synchronous contract had already solidified.
+
+Designing for streaming from the outset avoids backfilling these assumptions later and results in a cleaner, more adaptable API overall.
 ---
+
+### Document Ingestion
+
+**Problem**: Currently, the system only accepts raw text input. For production use, we need to support structured document formats (PDF, DOCX, etc.) and extract text content reliably.
+
+**Solution**: Implement a document ingestion pipeline that:
+- Supports multiple document formats (PDF, DOCX, etc.)
+- Extracts text content with proper formatting preservation
+- Handles images, tables, and other rich content
+- Provides fallback mechanisms for complex documents
+- Maintains document structure and metadata
+- Has a low failure rate for common document types
+
+**Implementation notes**: This would involve adding document processing libraries (e.g., PyPDF2, python-docx) and ideally integrating with Object Classification and Recognition (OCR) for scanned documents and images. The extracted content would then be processed through the existing review pipeline.
+
+**Where it goes**: New module `src/csr_service/document_ingestion/` with format-specific processors and a unified ingestion interface.
 
 ## Higher Effort (architectural changes)
 
@@ -256,9 +280,9 @@ content → ┬─ Model A (large, slow) ─────┐
 **Problem**: No mechanism to improve over time. Model makes the same mistakes repeatedly.
 
 **Solution**: Collect user feedback (accept/reject/edit observations), use it to:
-1. Build few-shot examples per rule (inject into prompts)
+1. Build few-shot examples per rule and explicitly include error cases in prompts
 2. Fine-tune severity/confidence calibration in policy layer
-3. Identify weak rules that consistently produce low-quality observations
+3. Track responses and identify patterns in low-quality and high-quality observations
 
 **Storage**: Lightweight SQLite or Postgres table:
 ```sql

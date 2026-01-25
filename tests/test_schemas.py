@@ -70,7 +70,7 @@ class TestReviewResponse:
                 standards_set="s",
                 strictness="medium",
                 policy_version="1.0.0",
-                model_id="llama3",
+                model_id="qwen2.5:7b-instruct",
             ),
             errors=[],
         )

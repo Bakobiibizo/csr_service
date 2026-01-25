@@ -1,7 +1,8 @@
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock
 
 import pytest
 
+from src.csr_service.config import settings
 from src.csr_service.engine.pipeline import run_review
 from src.csr_service.schemas.request import ReviewOptions, ReviewRequest
 from src.csr_service.schemas.response import Usage
@@ -35,6 +36,15 @@ def standards_set():
 @pytest.fixture
 def retriever(standards_set):
     return StandardsRetriever(standards_set)
+
+
+@pytest.fixture(autouse=True)
+def force_multi_rule_mode():
+    # Ensure tests run with multi-rule mode expectations
+    original = settings.single_rule_mode
+    settings.single_rule_mode = False
+    yield
+    settings.single_rule_mode = original
 
 
 @pytest.fixture
@@ -112,7 +122,9 @@ class TestRunReview:
         assert response.observations == []
         assert response.errors == []
 
-    async def test_strips_rationale_when_not_requested(self, standards_set, retriever, mock_model_client):
+    async def test_strips_rationale_when_not_requested(
+        self, standards_set, retriever, mock_model_client
+    ):
         request = ReviewRequest(
             content="The student will understand navigation.",
             standards_set="test_v1",
@@ -123,7 +135,9 @@ class TestRunReview:
         assert len(response.observations) == 1
         assert response.observations[0].rationale is None
 
-    async def test_strips_excerpts_when_not_requested(self, standards_set, retriever, mock_model_client):
+    async def test_strips_excerpts_when_not_requested(
+        self, standards_set, retriever, mock_model_client
+    ):
         request = ReviewRequest(
             content="The student will understand navigation.",
             standards_set="test_v1",
@@ -134,7 +148,9 @@ class TestRunReview:
         assert len(response.observations) == 1
         assert response.observations[0].standard_excerpt is None
 
-    async def test_keeps_rationale_when_requested(self, standards_set, retriever, mock_model_client):
+    async def test_keeps_rationale_when_requested(
+        self, standards_set, retriever, mock_model_client
+    ):
         request = ReviewRequest(
             content="The student will understand navigation.",
             standards_set="test_v1",

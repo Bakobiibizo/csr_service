@@ -66,7 +66,7 @@ class TestBuildUserPrompt:
         assert '{"key": value}' in prompt
 
     def test_curly_braces_in_rule_body(self):
-        rule = _rule(body='Must match pattern {name} in config')
+        rule = _rule(body="Must match pattern {name} in config")
         prompt = build_user_prompt("content", [rule], "medium")
         assert "{name}" in prompt
 

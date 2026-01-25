@@ -37,7 +37,11 @@ class ThresholdsConfig(BaseModel):
 
     @property
     def by_strictness(self) -> dict[str, float]:
-        return {"low": self.violation_low, "medium": self.violation_medium, "high": self.violation_high}
+        return {
+            "low": self.violation_low,
+            "medium": self.violation_medium,
+            "high": self.violation_high,
+        }
 
 
 class DefaultsConfig(BaseModel):
@@ -158,8 +162,13 @@ class PromptsConfig(BaseModel):
     }
     valid_severities: list[str] = ["info", "warning", "violation"]
     valid_categories: list[str] = [
-        "clarity", "accuracy", "structure", "accessibility",
-        "pedagogy", "compliance", "other",
+        "clarity",
+        "accuracy",
+        "structure",
+        "accessibility",
+        "pedagogy",
+        "compliance",
+        "other",
     ]
 
 
@@ -214,7 +223,7 @@ class Settings(BaseSettings):
     model_config = {"env_prefix": "CSR_"}
 
     ollama_base_url: str = "http://localhost:11435/v1"
-    model_id: str = "llama3"
+    model_id: str = "qwen2.5:7b-instruct"
     model_api_key: str = "ollama"
     model_timeout: float = 30.0
     model_temperature: float = 0.1

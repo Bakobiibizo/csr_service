@@ -1,10 +1,10 @@
 # Standards Authoring Guide
 
-This guide explains how to create and add custom standards sets to the CSR Service.
+This guide explains how to create and add custom standards sets to the Content Search and Review (CSR) Service.
 
 ## File Format
 
-Standards are JSON files placed in the `standards/` directory. Each file defines one standards set containing multiple rules.
+Standards are JavaScript Object Notation (JSON) files placed in the `standards/` directory. Each file defines one standards set containing multiple rules.
 
 ```json
 {
@@ -62,7 +62,7 @@ The body is the primary text the model uses to evaluate content. Write it as a c
 
 ### Tags
 
-Tags improve TF-IDF retrieval. Include:
+Tags improve Term Frequency-Inverse Document Frequency (TF-IDF) retrieval. Include:
 - Topic keywords (`objectives`, `safety`, `procedures`)
 - Synonyms for key concepts
 - Related domain terms

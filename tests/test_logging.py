@@ -42,12 +42,17 @@ class TestRequestIdFilter:
         try:
             filt = RequestIdFilter()
             record = logging.LogRecord(
-                name="test", level=logging.INFO, pathname="", lineno=0,
-                msg="test", args=None, exc_info=None,
+                name="test",
+                level=logging.INFO,
+                pathname="",
+                lineno=0,
+                msg="test",
+                args=None,
+                exc_info=None,
             )
             result = filt.filter(record)
             assert result is True
-            assert record.request_id == "test-123"  # type: ignore[attr-defined]
+            assert record.request_id == "test-123"
         finally:
             request_id_ctx.reset(token)
 
@@ -56,11 +61,16 @@ class TestRequestIdFilter:
         try:
             filt = RequestIdFilter()
             record = logging.LogRecord(
-                name="test", level=logging.INFO, pathname="", lineno=0,
-                msg="test", args=None, exc_info=None,
+                name="test",
+                level=logging.INFO,
+                pathname="",
+                lineno=0,
+                msg="test",
+                args=None,
+                exc_info=None,
             )
             filt.filter(record)
-            assert record.request_id == "-"  # type: ignore[attr-defined]
+            assert record.request_id == "-"
         finally:
             request_id_ctx.reset(token)
 
@@ -70,6 +80,7 @@ class TestLogLevel:
         monkeypatch.setenv("CSR_LOG_LEVEL", "DEBUG")
         # Re-import to test setup_logging with new env
         from src.csr_service.logging import setup_logging
+
         logger = setup_logging()
         # Logger might already have handlers from module init,
         # but we can verify the function doesn't crash
@@ -78,5 +89,6 @@ class TestLogLevel:
     def test_invalid_log_level_defaults_to_info(self, monkeypatch):
         monkeypatch.setenv("CSR_LOG_LEVEL", "INVALID")
         from src.csr_service.logging import setup_logging
+
         logger = setup_logging()
         assert logger.name == "csr_service"

@@ -1,7 +1,5 @@
 """Edge case tests for parser, policy, and retriever."""
 
-import pytest
-
 from src.csr_service.engine.parser import extract_json, parse_model_output, validate_observation
 from src.csr_service.policy.policy import (
     apply_policy,
@@ -15,12 +13,18 @@ from src.csr_service.schemas.standards import StandardRule, StandardsSet
 from src.csr_service.standards.retriever import StandardsRetriever
 
 
-def _obs(severity="warning", confidence=0.8, span=None, ref="R-1", msg="issue", category="other"):
+def _obs(
+    severity: str = "warning",
+    confidence: float = 0.8,
+    span: list[int] | None = None,
+    ref: str = "R-1",
+    msg: str = "issue",
+):
     return Observation(
         id="x",
         span=span,
         severity=severity,
-        category=category,
+        category="other",
         standard_ref=ref,
         message=msg,
         confidence=confidence,
@@ -171,12 +175,12 @@ class TestParserEdgeCases:
         assert result == []
 
     def test_code_fence_with_extra_whitespace(self):
-        raw = "Here:\n```json\n  \n{\"observations\": []}\n  \n```\n"
+        raw = 'Here:\n```json\n  \n{"observations": []}\n  \n```\n'
         data = extract_json(raw)
         assert data == {"observations": []}
 
     def test_code_fence_without_json_label(self):
-        raw = "```\n{\"observations\": []}\n```"
+        raw = '```\n{"observations": []}\n```'
         data = extract_json(raw)
         assert data == {"observations": []}
 
@@ -291,7 +295,12 @@ class TestRetrieverEdgeCases:
         ss = StandardsSet(
             standards_set="test",
             rules=[
-                StandardRule(standard_ref="A", title="Navigation", body="Maritime navigation rules", tags=["nav"]),
+                StandardRule(
+                    standard_ref="A",
+                    title="Navigation",
+                    body="Maritime navigation rules",
+                    tags=["nav"],
+                ),
             ],
         )
         retriever = StandardsRetriever(ss)

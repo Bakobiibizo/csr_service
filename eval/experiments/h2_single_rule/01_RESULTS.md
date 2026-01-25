@@ -1,4 +1,4 @@
-# H4 Results: Single-Rule Evaluation
+# H2 Results: Single-Rule Evaluation
 
 **Date**: 2026-01-25
 **Model**: qwen2.5:7b-instruct
@@ -33,7 +33,7 @@ CSR_MODEL_ID=qwen2.5:7b-instruct
 
 ## Comparison to H1 (Multi-Rule)
 
-| Metric | H1 (Multi-Rule) | H4 (Single-Rule) | Delta |
+| Metric | H1 (Multi-Rule) | H2 (Single-Rule) | Delta |
 |--------|-----------------|------------------|-------|
 | Cases passed | 4/8 | 3/8 | -1 |
 | Expectations passed | 13/16 | 11/17 | -2 |
@@ -64,7 +64,7 @@ CSR_MODEL_ID=qwen2.5:7b-instruct
 
 ## Hypothesis Assessment
 
-**H4 is PARTIALLY SUPPORTED.**
+**H2 is PARTIALLY SUPPORTED.**
 
 Single-rule evaluation improves rule focus (finds NAV-TR-3.3.1, no timeouts), but causes over-detection. The model evaluates each rule in isolation and finds more potential issues, leading to false positives.
 

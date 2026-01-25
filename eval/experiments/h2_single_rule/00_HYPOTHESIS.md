@@ -1,6 +1,6 @@
 # Next Experiment: Single-Rule Evaluation
 
-## Hypothesis H4: Narrowing scope improves performance
+## Hypothesis H2: Narrowing scope improves performance
 
 **Statement**: Evaluating content against one rule at a time (N requests for N rules) will produce more accurate observations with lower latency than evaluating against all rules in a single request.
 

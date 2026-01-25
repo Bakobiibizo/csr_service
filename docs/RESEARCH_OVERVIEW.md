@@ -1,14 +1,14 @@
-# CSR Service: Research Overview
+# Content Standards Review Service (CSR): Research Overview
 
 ## Executive Summary
 
-The Content Standards Review (CSR) Service is an AI-powered API that evaluates instructional content against defined standards rules. This document describes the evaluation framework, our hypothesis-driven development methodology, experimental findings, and recommendations for future development.
+The Content Standards Review Service (CSR) is an Artificial Intelligence (AI)-powered Application Programming Interface (API) that evaluates instructional content against defined standards rules. This document describes the evaluation framework, my hypothesis-driven development methodology, experimental findings, and recommendations for future development.
 
 **Key findings**:
 - Initial evaluation failures were caused by infrastructure issues, not model behavior
 - Prompt engineering significantly impacts detection accuracy (H1: forced traversal)
-- Evaluation scope affects precision/recall tradeoff (H4: single-rule mode)
-- The system successfully identifies standards violations but requires calibration
+- Evaluation scope affects precision/recall tradeoff (2: single-rule mode)
+- The system successfully identifies standards violations but still requires significant calibration
 
 ---
 
@@ -26,18 +26,20 @@ The CSR Service accepts instructional content (training materials, course object
 
 ### Architecture
 
+
+
+1. **Retrieval**: Term Frequency–Inverse Document Frequency (TF-IDF) vectorizer identifies top-k most relevant rules for the content
+2. **Prompt Construction**: Builds system and user prompts with rules + content + strictness
+3. **LLM Inference**: Calls Ollama with structured JavaScript Object Notation (JSON) output mode
+4. **Parsing**: Extracts and validates observations from model output
+5. **Policy**: Applies confidence gating, strictness bias, deduplication, sorting
+
 ```
 Request → Retrieval → Prompt Construction → LLM → Parsing → Policy → Response
             │              │                  │        │        │
          TF-IDF      System + User        Ollama    JSON     Gating
          top-k         prompts           qwen2.5   extract   dedup
 ```
-
-1. **Retrieval**: TF-IDF vectorizer identifies top-k most relevant rules for the content
-2. **Prompt Construction**: Builds system and user prompts with rules + content + strictness
-3. **LLM Inference**: Calls Ollama with structured JSON output mode
-4. **Parsing**: Extracts and validates observations from model output
-5. **Policy**: Applies confidence gating, strictness bias, deduplication, sorting
 
 ### Standards Corpus
 
@@ -98,7 +100,7 @@ After:  "Evaluate the content against EACH rule listed above, one rule at a time
 
 **Critical Discovery**: Before testing H1, we discovered the original evaluation was invalid. A model ID mismatch (`qwen2.5:32b` vs `qwen2.5:32b-instruct`) caused every request to return a 404 error. The pipeline's error handler returned empty observations, which the eval harness recorded as "model found no issues."
 
-**Lesson**: Always verify the model is actually being called before analyzing results. Suspiciously fast latencies (7-24ms for LLM inference) were the tell.
+**Lesson**: Always verify the model is actually being called before analyzing results. Suspiciously fast latencies (7-24ms for Large Language Model(LLM) inference) were the tell.
 
 **Results after fixing infrastructure + applying H1**:
 
@@ -113,7 +115,7 @@ After:  "Evaluate the content against EACH rule listed above, one rule at a time
 
 ---
 
-### Experiment H4: Single-Rule Evaluation
+### Experiment H2: Single-Rule Evaluation
 
 **Hypothesis**: Evaluating content against one rule at a time (N parallel requests) will improve accuracy by reducing prompt complexity and model context-switching.
 
@@ -121,14 +123,14 @@ After:  "Evaluate the content against EACH rule listed above, one rule at a time
 
 **Results**:
 
-| Metric | H1 (Multi-Rule) | H4 (Single-Rule) |
+| Metric | H1 (Multi-Rule) | H2 (Single-Rule) |
 |--------|-----------------|------------------|
 | Cases passed | 4/8 | 3/8 |
 | NAV-TR-3.3.1 found | No | Yes |
 | Timeouts | 1 case | 0 cases |
 | Over-detection | Moderate | High |
 
-**Verdict**: H4 PARTIALLY SUPPORTED. Single-rule mode improved rule coverage (found previously missing violations) but caused over-detection (too many false positives on clean content).
+**Verdict**: H2 PARTIALLY SUPPORTED. Single-rule mode improved rule coverage (found previously missing violations) but caused over-detection (too many false positives on clean content).
 
 ---
 
@@ -155,17 +157,17 @@ These goals conflict. Increasing sensitivity (recall) reduces precision. Reducin
 #### Failure Mode 2: Over-Detection
 **Symptom**: Model generates too many observations, including false positives.
 **Cause**: Single-rule isolation removes context that would indicate compliance.
-**Status**: Observed in H4. Requires calibration.
+**Status**: Observed in H2. Requires calibration.
 
 #### Failure Mode 3: Severity Misclassification
 **Symptom**: Model uses "violation" when "warning" is appropriate (or vice versa).
 **Cause**: Insufficient guidance on severity criteria in prompts.
-**Status**: Unresolved. Observed in both H1 and H4 results.
+**Status**: Unresolved. Observed in both H1 and H2 results.
 
 #### Failure Mode 4: Retrieval Miss
 **Symptom**: Relevant rule not in top-k retrieved set.
 **Cause**: TF-IDF may not capture semantic similarity for short content.
-**Status**: Partially addressed by H4 (single-rule found NAV-TR-3.3.1). Needs H2 investigation.
+**Status**: Partially addressed by H2 (single-rule found NAV-TR-3.3.1). Needs H2 investigation.
 
 #### Failure Mode 5: Span Instability
 **Symptom**: Same violation identified at different character offsets across runs.
@@ -174,7 +176,7 @@ These goals conflict. Increasing sensitivity (recall) reduces precision. Reducin
 
 ### What We Don't Know Yet
 
-1. **Retrieval effectiveness**: Are the right rules being retrieved? (H2 pending)
+1. **Retrieval effectiveness**: Are the right rules being retrieved? (H3 pending)
 2. **Confidence calibration**: Are high-confidence observations actually more accurate?
 3. **Model size impact**: Would 32B model reduce over-detection vs 7B?
 4. **Rule corpus quality**: Are the rules themselves well-specified?
@@ -244,9 +246,9 @@ eval/experiments/
 │   ├── baseline_prompts.yaml   # Original prompts
 │   ├── modified_prompts.yaml   # H1 intervention prompts
 │   └── *.json, *.png           # Data and visualizations
-└── h4_single_rule/
-    ├── 00_HYPOTHESIS.md        # H4 hypothesis and status
-    ├── 01_RESULTS.md           # H4 experimental results
+└── h2_single_rule/
+    ├── 00_HYPOTHESIS.md        # H2 hypothesis and status
+    ├── 01_RESULTS.md           # H2 experimental results
     └── results.json            # Raw eval data
 ```
 

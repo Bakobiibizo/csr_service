@@ -30,9 +30,10 @@ After fixing infrastructure and applying H1, the model generates 3-7 observation
 
 ## Next experiments
 
-- **H2**: Verify retrieval surfaces correct rules for case_03
-- **H3**: Check if confidence gating removes valid observations
-- **H4**: Single-rule evaluation — one rule per request, parallel execution (see [04_NEXT_HYPOTHESIS.md](04_NEXT_HYPOTHESIS.md))
+
+- **H2**: Single-rule evaluation — one rule per request, parallel execution (see [03_RUN2_RESULTS.md](03_RUN2_RESULTS.md))
+- **H3**: Verify retrieval surfaces correct rules for case_03
+- **H4**: Check if confidence gating removes valid observations
 - **Severity tuning**: Adjust prompt or policy for correct severity classification
 
 ## Experiment complete

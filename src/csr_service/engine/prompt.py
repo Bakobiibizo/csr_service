@@ -23,9 +23,7 @@ def build_user_prompt(
     strictness: str,
 ) -> str:
     rules_text = "\n".join(
-        prompts_config.rule_format.format(
-            standard_ref=r.standard_ref, title=r.title, body=r.body
-        )
+        prompts_config.rule_format.format(standard_ref=r.standard_ref, title=r.title, body=r.body)
         for r in rules
     )
 

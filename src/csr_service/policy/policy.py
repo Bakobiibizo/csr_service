@@ -28,7 +28,7 @@ def confidence_gate(observations: list[Observation], min_confidence: float) -> l
             new_severity = SEVERITY_DOWNGRADE.get(obs.severity)
             if new_severity is None:
                 continue  # Drop info-level below threshold
-            obs.severity = new_severity  # type: ignore[assignment]
+            obs.severity = new_severity
             result.append(obs)
     return result
 

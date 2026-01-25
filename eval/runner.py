@@ -122,8 +122,12 @@ def evaluate_case(base_url: str, token: str, case: dict, n: int) -> dict:
     obs_counts = [len(r.get("observations", [])) for r in runs]
 
     print("  Schema: PASS")
-    print(f"  Observations: {obs_counts[0]} (range: {min(obs_counts)}-{max(obs_counts)} across {n} runs)")
-    print(f"  Span stability: {repeatability['span_stability']:.0%}  |  Severity stability: {repeatability['severity_stability']:.0%}")
+    print(
+        f"  Observations: {obs_counts[0]} (range: {min(obs_counts)}-{max(obs_counts)} across {n} runs)"
+    )
+    print(
+        f"  Span stability: {repeatability['span_stability']:.0%}  |  Severity stability: {repeatability['severity_stability']:.0%}"
+    )
     _print_latency(case_latency)
 
     # Expectations
@@ -179,25 +183,22 @@ def main():
         results.append(result)
         latency = result.get("latency", {})
         if latency.get("mean_ms", 0) > 0:
-            all_latencies.extend(
-                [latency["min_ms"], latency["max_ms"]]
-            )
+            all_latencies.extend([latency["min_ms"], latency["max_ms"]])
 
     print("\n" + "=" * 60)
     passed = sum(1 for r in results if r.get("pass"))
-    total_expectations = sum(
-        len(r.get("expectation_results", [])) for r in results
-    )
+    total_expectations = sum(len(r.get("expectation_results", [])) for r in results)
     expectations_passed = sum(
-        sum(1 for e in r.get("expectation_results", []) if e["passed"])
-        for r in results
+        sum(1 for e in r.get("expectation_results", []) if e["passed"]) for r in results
     )
     overall_latency = compute_latency_stats(all_latencies)
 
     print(f"Results: {passed}/{len(results)} cases passed")
     if total_expectations > 0:
         print(f"Expectations: {expectations_passed}/{total_expectations} checks passed")
-    print(f"Latency (overall): mean={overall_latency['mean_ms']}ms, p95={overall_latency['p95_ms']}ms")
+    print(
+        f"Latency (overall): mean={overall_latency['mean_ms']}ms, p95={overall_latency['p95_ms']}ms"
+    )
 
     if args.json_output:
         output_path = Path(args.json_output)
@@ -218,6 +219,7 @@ def main():
         # Auto-generate visualizations
         try:
             from eval.visualize import generate_all
+
             generate_all(str(output_path))
             print("Visualizations generated in:", str(output_path.parent))
         except ImportError:

@@ -30,12 +30,17 @@ def generate_latency_chart(data: dict, output_dir: Path) -> None:
     p95s = [r["latency"]["p95_ms"] for r in results]
     errors = [p95 - mean for mean, p95 in zip(means, p95s)]
 
-    fig, ax = plt.subplots(figsize=(10, 5))
-    bars = ax.bar(case_ids, means, color="#4C9AFF", edgecolor="none")
+    _, ax = plt.subplots(figsize=(10, 5))
+    ax.bar(case_ids, means, color="#4C9AFF", edgecolor="none")
+    yerr = np.vstack((np.zeros(len(errors)), np.array(errors)))
     ax.errorbar(
-        case_ids, means,
-        yerr=[np.zeros(len(errors)), errors],
-        fmt="none", ecolor="#FF6B6B", capsize=4, linewidth=1.5,
+        case_ids,
+        means,
+        yerr=yerr,
+        fmt="none",
+        ecolor="#FF6B6B",
+        capsize=4,
+        linewidth=1.5,
     )
 
     ax.set_xlabel("Case ID")
@@ -56,8 +61,8 @@ def generate_observation_chart(data: dict, output_dir: Path) -> None:
     case_ids = [r["case_id"] for r in results]
     obs_counts = [r["observation_counts"][0] for r in results]
 
-    fig, ax = plt.subplots(figsize=(10, 5))
-    bars = ax.bar(case_ids, obs_counts, color="#6BCB77", edgecolor="none")
+    _, ax = plt.subplots(figsize=(10, 5))
+    ax.bar(case_ids, obs_counts, color="#6BCB77", edgecolor="none")
 
     # Add expected range markers from expectation_results
     for i, r in enumerate(results):
@@ -71,8 +76,12 @@ def generate_observation_chart(data: dict, output_dir: Path) -> None:
                         range_str = parts[1].rstrip(")")
                         min_val, max_val = map(int, range_str.split("-"))
                         ax.plot(
-                            [i, i], [min_val, max_val],
-                            color="#FF6B6B", linewidth=2, marker="_", markersize=10,
+                            [i, i],
+                            [min_val, max_val],
+                            color="#FF6B6B",
+                            linewidth=2,
+                            marker="_",
+                            markersize=10,
                         )
                 except (ValueError, IndexError):
                     pass
@@ -98,7 +107,7 @@ def generate_stability_heatmap(data: dict, output_dir: Path) -> None:
 
     matrix = np.array([span_stab, sev_stab]).T
 
-    fig, ax = plt.subplots(figsize=(6, max(4, len(case_ids) * 0.6)))
+    _, ax = plt.subplots(figsize=(6, max(4, len(case_ids) * 0.6)))
     im = ax.imshow(matrix, cmap="RdYlGn", vmin=0, vmax=1, aspect="auto")
 
     ax.set_xticks([0, 1])
@@ -142,16 +151,18 @@ def generate_pass_fail_chart(data: dict, output_dir: Path) -> None:
             j = all_checks.index(exp["check"])
             matrix[i, j] = 1.0 if exp["passed"] else 0.0
 
-    fig, ax = plt.subplots(figsize=(max(6, len(all_checks) * 1.2), max(4, len(case_ids) * 0.6)))
+    _, ax = plt.subplots(figsize=(max(6, len(all_checks) * 1.2), max(4, len(case_ids) * 0.6)))
 
     # Custom colormap: grey (-1), red (0), green (1)
     from matplotlib.colors import ListedColormap
+
     cmap = ListedColormap(["#DDDDDD", "#FF6B6B", "#6BCB77"])
     bounds = [-1.5, -0.5, 0.5, 1.5]
     from matplotlib.colors import BoundaryNorm
+
     norm = BoundaryNorm(bounds, cmap.N)
 
-    im = ax.imshow(matrix, cmap=cmap, norm=norm, aspect="auto")
+    ax.imshow(matrix, cmap=cmap, norm=norm, aspect="auto")
 
     ax.set_xticks(range(len(all_checks)))
     ax.set_xticklabels(all_checks, rotation=45, ha="right", fontsize=8)
@@ -165,7 +176,16 @@ def generate_pass_fail_chart(data: dict, output_dir: Path) -> None:
             if val == 1.0:
                 ax.text(j, i, "P", ha="center", va="center", fontsize=9, fontweight="bold")
             elif val == 0.0:
-                ax.text(j, i, "F", ha="center", va="center", fontsize=9, fontweight="bold", color="white")
+                ax.text(
+                    j,
+                    i,
+                    "F",
+                    ha="center",
+                    va="center",
+                    fontsize=9,
+                    fontweight="bold",
+                    color="white",
+                )
             else:
                 ax.text(j, i, "-", ha="center", va="center", fontsize=9, color="#999999")
 

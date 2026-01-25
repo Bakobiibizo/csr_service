@@ -63,9 +63,11 @@ def compute_case_delta(baseline_case: dict, modified_case: dict) -> dict:
             "baseline": baseline_pass,
             "modified": modified_pass,
             "changed": baseline_pass != modified_pass,
-            "direction": "improved" if modified_pass and not baseline_pass
-                        else "regressed" if baseline_pass and not modified_pass
-                        else "unchanged",
+            "direction": "improved"
+            if modified_pass and not baseline_pass
+            else "regressed"
+            if baseline_pass and not modified_pass
+            else "unchanged",
         },
         "observation_count": {
             "baseline": baseline_count,
@@ -139,8 +141,12 @@ def print_comparison(comparison: dict) -> None:
     print("=" * 70)
     print()
     print(f"Cases compared: {summary['cases_compared']}")
-    print(f"Pass rate: {summary['baseline_pass_rate']} (baseline) -> {summary['modified_pass_rate']} (modified)")
-    print(f"Improved: {summary['improved']}  |  Regressed: {summary['regressed']}  |  Unchanged: {summary['unchanged']}")
+    print(
+        f"Pass rate: {summary['baseline_pass_rate']} (baseline) -> {summary['modified_pass_rate']} (modified)"
+    )
+    print(
+        f"Improved: {summary['improved']}  |  Regressed: {summary['regressed']}  |  Unchanged: {summary['unchanged']}"
+    )
     print(f"Total observation delta: {summary['total_observation_delta']:+d}")
     print(f"Total latency delta: {summary['total_latency_delta_ms']:+d}ms")
     print()
@@ -181,15 +187,24 @@ def print_comparison(comparison: dict) -> None:
 def run_eval(base_url: str, token: str, cases_dir: str, n: int, output_path: str) -> dict:
     """Run the eval harness and return results."""
     cmd = [
-        sys.executable, "-m", "eval.runner",
-        "--cases", cases_dir,
-        "--base-url", base_url,
-        "--token", token,
-        "-n", str(n),
-        "--json-output", output_path,
+        sys.executable,
+        "-m",
+        "eval.runner",
+        "--cases",
+        cases_dir,
+        "--base-url",
+        base_url,
+        "--token",
+        token,
+        "-n",
+        str(n),
+        "--json-output",
+        output_path,
     ]
     print(f"  Running: {' '.join(cmd)}")
-    result = subprocess.run(cmd, capture_output=True, text=True, cwd=str(Path(__file__).parent.parent))
+    result = subprocess.run(
+        cmd, capture_output=True, text=True, cwd=str(Path(__file__).parent.parent), check=False
+    )
     print(result.stdout)
     if result.returncode != 0:
         print(f"  STDERR: {result.stderr}", file=sys.stderr)
@@ -281,8 +296,12 @@ def main():
     run_parser.add_argument("--token", default="demo-token", help="Auth token")
     run_parser.add_argument("--cases", default="eval/cases", help="Test cases directory")
     run_parser.add_argument("-n", type=int, default=5, help="Repeats per case")
-    run_parser.add_argument("--restart-delay", type=int, default=5,
-                          help="Seconds to wait after config swap for service restart")
+    run_parser.add_argument(
+        "--restart-delay",
+        type=int,
+        default=5,
+        help="Seconds to wait after config swap for service restart",
+    )
 
     args = parser.parse_args()
 

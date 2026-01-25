@@ -113,9 +113,7 @@ async def run_review(
 
     # Choose execution mode
     if settings.single_rule_mode:
-        observations, usage, rule_errors = await _run_single_rule_mode(
-            request, rules, model_client
-        )
+        observations, usage, rule_errors = await _run_single_rule_mode(request, rules, model_client)
         errors.extend(rule_errors)
     else:
         # Multi-rule mode (original behavior)

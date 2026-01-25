@@ -22,6 +22,7 @@ logger.info("Starting CSR Service")
 # Print settings with sensitive data masked
 print_settings(settings)
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Load standards

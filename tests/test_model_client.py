@@ -3,7 +3,6 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 from src.csr_service.engine.model_client import ModelClient
-from src.csr_service.schemas.response import Usage
 
 
 class TestModelClientInit:
@@ -24,7 +23,7 @@ class TestModelClientGenerate:
             mock_settings.ollama_base_url = "http://localhost:11434/v1"
             mock_settings.model_api_key = "ollama"
             mock_settings.model_timeout = 30.0
-            mock_settings.model_id = "llama3"
+            mock_settings.model_id = "qwen2.5:7b-instruct"
             mock_settings.model_temperature = 0.1
             mock_settings.model_json_mode = True
             client = ModelClient()

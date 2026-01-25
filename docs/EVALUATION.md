@@ -2,7 +2,7 @@
 
 ## Overview
 
-The CSR Service evaluation framework validates the AI-powered content review pipeline across four dimensions:
+The Content Standards Review (CSR) Service evaluation framework validates the Artificial Intelligence (AI)-powered content review pipeline across four dimensions:
 
 1. **Schema correctness** — Responses conform to the `ReviewResponse` Pydantic model
 2. **Repeatability/stability** — Repeated runs produce consistent observations (span and severity stability)
@@ -12,8 +12,8 @@ The CSR Service evaluation framework validates the AI-powered content review pip
 ## Prerequisites
 
 - CSR Service running (default: `http://localhost:9020`)
-- LLM backend loaded (e.g., `qwen2.5:32b` via Ollama)
-- Python dev dependencies installed: `uv pip install -e ".[dev]"`
+- Large language model (LLM) backend loaded (e.g., `qwen2.5:7b-instruct` via Ollama)
+- Python dev dependencies installed: `uv sync --all-extras`
 
 ## Running
 
@@ -21,7 +21,7 @@ The CSR Service evaluation framework validates the AI-powered content review pip
 # Quick smoke test (1 run per case)
 uv run python -m eval.runner --cases eval/cases -n 1
 
-# Full evaluation (5 runs per case, save JSON results)
+# Full evaluation (5 runs per case, save JavaScript Object Notation (JSON) results)
 uv run python -m eval.runner \
   --cases eval/cases \
   --backend ollama \
@@ -31,7 +31,7 @@ uv run python -m eval.runner \
   --json-output eval/results/results.json
 ```
 
-### CLI Flags
+### Command-line interface (CLI) Flags
 
 | Flag | Default | Description |
 |------|---------|-------------|
@@ -110,7 +110,7 @@ For error cases (`expect_error: true`), set `min_obs`, `max_obs`, `expected_seve
 ### Pass/Fail
 
 A case **passes** when:
-- Error cases: HTTP status is 4xx as expected, and error code matches (if specified)
+- Error cases: Hyper Text Transfer Protocol (HTTP) status is 4xx as expected, and error code matches (if specified)
 - Success cases: Schema validates AND all expectation checks pass
 
 ### Stability Thresholds
@@ -167,7 +167,7 @@ The original baseline (4/8 pass, 14ms latency) was **invalid** — a model ID mi
 | Experiment | Pass Rate | Key Finding |
 |------------|-----------|-------------|
 | H1: Forced Traversal | 4/8, 13/16 exp | Fixed silent compliance, model now generates observations |
-| H4: Single-Rule Mode | 3/8, 11/17 exp | Better rule coverage, but over-detection |
+| H2: Single-Rule Mode | 3/8, 11/17 exp | Better rule coverage, but over-detection |
 
 For full analysis, see:
 - [RESEARCH_OVERVIEW.md](RESEARCH_OVERVIEW.md) — Methodology and recommendations

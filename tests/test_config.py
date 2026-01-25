@@ -1,6 +1,5 @@
 import os
 import tempfile
-from pathlib import Path
 
 from src.csr_service.config import (
     PolicyConfig,
@@ -116,7 +115,9 @@ class TestLoadPromptsConfig:
 
     def test_partial_yaml_merges_with_defaults(self):
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
-            f.write("strictness_instructions:\n  low: Custom low message\n  medium: Custom medium\n  high: Custom high\n")
+            f.write(
+                "strictness_instructions:\n  low: Custom low message\n  medium: Custom medium\n  high: Custom high\n"
+            )
             f.flush()
             config = load_prompts_config(f.name)
         os.unlink(f.name)

@@ -82,12 +82,14 @@ def check_expectations(
         if expected_code:
             error_text = response_data.get("_error", "")
             passed = expected_code in error_text
-            results.append({
-                "check": "expected_error_code",
-                "passed": passed,
-                "detail": f"expected '{expected_code}' in response"
-                + ("" if passed else f", got: {error_text[:80]}"),
-            })
+            results.append(
+                {
+                    "check": "expected_error_code",
+                    "passed": passed,
+                    "detail": f"expected '{expected_code}' in response"
+                    + ("" if passed else f", got: {error_text[:80]}"),
+                }
+            )
         return results
 
     observations = response_data.get("observations", [])
@@ -97,32 +99,38 @@ def check_expectations(
     max_obs = expectations.get("max_obs")
     if min_obs is not None and max_obs is not None:
         passed = min_obs <= obs_count <= max_obs
-        results.append({
-            "check": "observation_count",
-            "passed": passed,
-            "detail": f"{obs_count} (expected {min_obs}-{max_obs})",
-        })
+        results.append(
+            {
+                "check": "observation_count",
+                "passed": passed,
+                "detail": f"{obs_count} (expected {min_obs}-{max_obs})",
+            }
+        )
 
     expected_severities = expectations.get("expected_severities")
     if expected_severities:
         found_severities = {o.get("severity") for o in observations}
         for sev in expected_severities:
             passed = sev in found_severities
-            results.append({
-                "check": f"expected_severity:{sev}",
-                "passed": passed,
-                "detail": f"{'found' if passed else 'NOT found'} in observations",
-            })
+            results.append(
+                {
+                    "check": f"expected_severity:{sev}",
+                    "passed": passed,
+                    "detail": f"{'found' if passed else 'NOT found'} in observations",
+                }
+            )
 
     expected_refs = expectations.get("expected_refs")
     if expected_refs:
         found_refs = {o.get("standard_ref") for o in observations}
         for ref in expected_refs:
             passed = ref in found_refs
-            results.append({
-                "check": f"expected_ref:{ref}",
-                "passed": passed,
-                "detail": f"{'found' if passed else 'NOT found'} in observations",
-            })
+            results.append(
+                {
+                    "check": f"expected_ref:{ref}",
+                    "passed": passed,
+                    "detail": f"{'found' if passed else 'NOT found'} in observations",
+                }
+            )
 
     return results

@@ -35,6 +35,8 @@ Strictness is not a prompt modifier alone. It controls:
 
 This means policy behavior is testable, debuggable, and independent of model choice.
 
-## Why this scales to teams
+## How this scales to teams
 
 This structure allows junior engineers to work safely inside contracts (add rules, adjust thresholds), while senior engineers own policy, evaluation, and interfaces. Swapping models requires changing one environment variable. Adding standards sets requires dropping a JSON file.
+
+Extensible and modular design enables fast iteration required for rapid refinement of prompts and rules while providing enough structure for development of reliable non-deterministic model outputs.
