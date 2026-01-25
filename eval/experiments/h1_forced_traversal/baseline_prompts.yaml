@@ -25,9 +25,8 @@ system_prompt: |
   - severity: "violation" for clear breaches, "warning" for likely issues, "info" for suggestions
   - confidence: how certain you are this is a real issue (0.0-1.0)
   - standard_ref must exactly match one of the provided rules' standard_ref values
-  - Do not invent issues that are not evidenced in the text. Every observation must cite specific content that triggers the rule.
-  - You MUST evaluate each provided rule against the content individually. Do not skip rules.
-  - An empty observations list is only appropriate when you have checked every provided rule and none are violated.
+  - Only report genuine issues. Do not fabricate problems.
+  - If the content fully complies with all provided rules, return {"observations": []}
 
 user_prompt_template: |
   ## Standards Rules
@@ -44,15 +43,7 @@ user_prompt_template: |
 
   ## Instructions
 
-  Evaluate the content against EACH rule listed above, one rule at a time:
-
-  1. For each rule, identify whether the content violates that specific rule.
-  2. If violated, locate the specific text span that triggers the violation and report it as an observation.
-  3. If a rule is satisfied by the content, move to the next rule without reporting it.
-
-  You must check every rule. Do not stop after finding the first issue or conclude "no problems" without testing each rule individually.
-
-  Return your observations as JSON.
+  Review the content above against the provided standards rules. Return your observations as JSON.
 
 rule_format: "- [{standard_ref}] {title}: {body}"
 
