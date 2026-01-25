@@ -1,8 +1,10 @@
 import logging
+from types import SimpleNamespace
 
 from src.csr_service.logging import (
     RequestIdFilter,
     get_request_id,
+    print_settings,
     request_id_ctx,
 )
 
@@ -92,3 +94,33 @@ class TestLogLevel:
 
         logger = setup_logging()
         assert logger.name == "csr_service"
+
+
+class TestPrintSettings:
+    def test_print_settings_masks_sensitive_fields(self, caplog):
+        settings = SimpleNamespace(
+            api_token="very-secret-token",
+            auth_key="super-secret-auth",
+            model_api_key="another-secret",
+            regular_value="visible-value",
+            another_field="123",
+        )
+
+        logger_name = "csr_service"
+        caplog.set_level(logging.INFO, logger=logger_name)
+
+        print_settings(settings)
+
+        logged_output = "\n".join(
+            record.getMessage() for record in caplog.records if record.name == logger_name
+        )
+
+        assert "api_token" in logged_output
+        assert "auth_key" in logged_output
+        assert "model_api_key" in logged_output
+        assert "regular_value: visible-value" in logged_output
+        assert "another_field: 123" in logged_output
+
+        assert "very-secret-token" not in logged_output
+        assert "super-secret-auth" not in logged_output
+        assert "another-secret" not in logged_output

@@ -110,7 +110,7 @@ For error cases (`expect_error: true`), set `min_obs`, `max_obs`, `expected_seve
 ### Pass/Fail
 
 A case **passes** when:
-- Error cases: Hyper Text Transfer Protocol (HTTP) status is 4xx as expected, and error code matches (if specified)
+- Error cases: Hypertext Transfer Protocol (HTTP) status is 4xx as expected, and error code matches (if specified)
 - Success cases: Schema validates AND all expectation checks pass
 
 ### Stability Thresholds

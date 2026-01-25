@@ -20,6 +20,7 @@ Usage:
 
 import argparse
 import json
+import shlex
 import shutil
 import subprocess
 import sys
@@ -187,23 +188,29 @@ def print_comparison(comparison: dict) -> None:
 def run_eval(base_url: str, token: str, cases_dir: str, n: int, output_path: str) -> dict:
     """Run the eval harness and return results."""
     cmd = [
-        sys.executable,
+        str(sys.executable),
         "-m",
         "eval.runner",
         "--cases",
-        cases_dir,
+        str(Path(cases_dir)),
         "--base-url",
-        base_url,
+        str(base_url),
         "--token",
-        token,
+        str(token),
         "-n",
         str(n),
         "--json-output",
-        output_path,
+        str(output_path),
     ]
-    print(f"  Running: {' '.join(cmd)}")
+    cmd_display = " ".join(shlex.quote(part) for part in cmd)
+    print(f"  Running: {cmd_display}")
     result = subprocess.run(
-        cmd, capture_output=True, text=True, cwd=str(Path(__file__).parent.parent), check=False
+        cmd,
+        capture_output=True,
+        text=True,
+        cwd=str(Path(__file__).parent.parent),
+        check=False,
+        shell=False,
     )
     print(result.stdout)
     if result.returncode != 0:

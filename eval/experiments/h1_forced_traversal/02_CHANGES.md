@@ -20,7 +20,7 @@
 
 This reduced round trip time to ~30 seconds per request at the cost of model accuracy.
 
-**Note**: Bench marking model performance and doing a cost analysis will be required when selecting hardware for the project. 
+**Note**: Benchmarking model performance and doing a cost analysis will be required when selecting hardware for the project. 
 
 ### Fix 2: GPU memory exhaustion
 

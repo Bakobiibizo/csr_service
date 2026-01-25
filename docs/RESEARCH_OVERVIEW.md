@@ -7,7 +7,7 @@ The Content Standards Review Service (CSR) is an Artificial Intelligence (AI)-po
 **Key findings**:
 - Initial evaluation failures were caused by infrastructure issues, not model behavior
 - Prompt engineering significantly impacts detection accuracy (H1: forced traversal)
-- Evaluation scope affects precision/recall tradeoff (2: single-rule mode)
+- Evaluation scope affects precision/recall tradeoff (H2: single-rule mode)
 - The system successfully identifies standards violations but still requires significant calibration
 
 ---
@@ -100,7 +100,7 @@ After:  "Evaluate the content against EACH rule listed above, one rule at a time
 
 **Critical Discovery**: Before testing H1, we discovered the original evaluation was invalid. A model ID mismatch (`qwen2.5:32b` vs `qwen2.5:32b-instruct`) caused every request to return a 404 error. The pipeline's error handler returned empty observations, which the eval harness recorded as "model found no issues."
 
-**Lesson**: Always verify the model is actually being called before analyzing results. Suspiciously fast latencies (7-24ms for Large Language Model(LLM) inference) were the tell.
+**Lesson**: Always verify the model is actually being called before analyzing results. Suspiciously fast latencies (7-24ms for Large Language Model (LLM) inference) were the tell.
 
 **Results after fixing infrastructure + applying H1**:
 

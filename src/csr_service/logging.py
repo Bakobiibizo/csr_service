@@ -7,7 +7,9 @@ injecting it into every log record via a custom filter.
 import logging
 import os
 import uuid
+from collections.abc import Mapping
 from contextvars import ContextVar
+from typing import Any
 
 request_id_ctx: ContextVar[str] = ContextVar("request_id", default="")
 
@@ -44,15 +46,35 @@ def setup_logging() -> logging.Logger:
 logger = setup_logging()
 
 
+SENSITIVE_KEYS = ("auth", "token", "key", "secret", "pass")
+
+
+def _mask_value(key: str, value: Any) -> str:
+    key_lower = key.lower()
+    if any(fragment in key_lower for fragment in SENSITIVE_KEYS):
+        return "*" * max(6, len(str(value)))
+    return str(value)
+
+
 # Helper function to print settings with sensitive data masked
 def print_settings(obj: object) -> None:
     if not obj:
         return
 
     logger.info("=== Settings ===")
-    if hasattr(obj, "__dict__"):
-        for key, value in obj.__dict__.items():
-            if "auth" in key.lower() or "token" in key.lower():
-                logger.info(f"{key}: {'*' * len(str(value))}")
-            else:
-                logger.info(f"{key}: {value}")
+
+    data: Mapping[str, Any] | None = None
+    if hasattr(obj, "model_dump"):
+        try:
+            data = obj.model_dump()  # type: ignore[attr-defined]
+        except Exception:
+            data = None
+
+    if data is None and hasattr(obj, "__dict__"):
+        data = obj.__dict__
+
+    if not data:
+        return
+
+    for key, value in data.items():
+        logger.info(f"{key}: {_mask_value(key, value)}")

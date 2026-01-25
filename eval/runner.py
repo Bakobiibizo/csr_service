@@ -66,14 +66,14 @@ def run_case(base_url: str, token: str, case: dict) -> dict:
         return {"_error": str(e), "_latency_ms": int((time.time() - start) * 1000)}
 
 
-def evaluate_case(base_url: str, token: str, case: dict, n: int) -> dict:
+def evaluate_case(base_url: str, token: str, case: dict, n: int) -> tuple[dict, list[int]]:
     case_id = case.get("id", "unknown")
     case_desc = case.get("description", "")
     expect_error = case.get("expect_error", False)
     expectations = case.get("expectations", {})
     print(f"\n[{case_id}] {case_desc}")
 
-    latencies = []
+    latencies: list[int] = []
     runs = []
     for _ in range(n):
         result = run_case(base_url, token, case)
@@ -101,13 +101,13 @@ def evaluate_case(base_url: str, token: str, case: dict, n: int) -> dict:
             case_result["pass"] = False
             case_result["expectation_results"] = []
         _print_latency(case_latency)
-        return case_result
+        return case_result, latencies
 
     if "_error" in first and "_status_code" not in first:
         print(f"  FAIL (connection error): {first['_error'][:100]}")
         case_result["pass"] = False
         case_result["expectation_results"] = []
-        return case_result
+        return case_result, latencies
 
     # Schema validation
     schema_ok, schema_err = validate_schema(first)
@@ -115,7 +115,7 @@ def evaluate_case(base_url: str, token: str, case: dict, n: int) -> dict:
         print(f"  Schema: FAIL - {schema_err[:100]}")
         case_result["pass"] = False
         case_result["expectation_results"] = []
-        return case_result
+        return case_result, latencies
 
     # Repeatability
     repeatability = check_repeatability(runs)
@@ -140,7 +140,7 @@ def evaluate_case(base_url: str, token: str, case: dict, n: int) -> dict:
     case_result["observation_counts"] = obs_counts
     case_result["expectation_results"] = exp_results
 
-    return case_result
+    return case_result, latencies
 
 
 def _print_latency(latency: dict) -> None:
@@ -179,11 +179,10 @@ def main():
     results = []
 
     for case in cases:
-        result = evaluate_case(args.base_url, args.token, case, args.n)
+        result, case_latencies = evaluate_case(args.base_url, args.token, case, args.n)
         results.append(result)
-        latency = result.get("latency", {})
-        if latency.get("mean_ms", 0) > 0:
-            all_latencies.extend([latency["min_ms"], latency["max_ms"]])
+        if case_latencies:
+            all_latencies.extend(case_latencies)
 
     print("\n" + "=" * 60)
     passed = sum(1 for r in results if r.get("pass"))

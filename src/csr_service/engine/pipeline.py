@@ -119,6 +119,8 @@ async def run_review(
         # Multi-rule mode (original behavior)
         user_prompt = build_user_prompt(request.content, rules, request.strictness)
 
+        usage = Usage()
+
         try:
             raw_output, usage = await model_client.generate(get_system_prompt(), user_prompt)
         except Exception as e:
