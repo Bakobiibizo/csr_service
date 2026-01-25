@@ -187,7 +187,7 @@ def print_comparison(comparison: dict) -> None:
 
 def run_eval(base_url: str, token: str, cases_dir: str, n: int, output_path: str) -> dict:
     """Run the eval harness and return results."""
-    cmd = shlex.quote([
+    cmd = [
         str(sys.executable),
         "-m",
         "eval.runner",
@@ -201,8 +201,8 @@ def run_eval(base_url: str, token: str, cases_dir: str, n: int, output_path: str
         str(n),
         "--json-output",
         str(output_path),
-    ])
-    print(f"  Running: {cmd}")
+    ]
+    print(f"  Running: {shlex.join(cmd)}")
     result = subprocess.run(
         cmd,
         capture_output=True,
