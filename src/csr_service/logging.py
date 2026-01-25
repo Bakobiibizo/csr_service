@@ -66,7 +66,7 @@ def print_settings(obj: object) -> None:
     data: Mapping[str, Any] | None = None
     if hasattr(obj, "model_dump"):
         try:
-            data = obj.model_dump()  # type: ignore[attr-defined]
+            data = obj.model_dump()
         except Exception:
             data = None
 
