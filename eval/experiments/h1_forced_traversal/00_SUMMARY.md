@@ -32,4 +32,13 @@ After fixing infrastructure and applying H1, the model generates 3-7 observation
 
 - **H2**: Verify retrieval surfaces correct rules for case_03
 - **H3**: Check if confidence gating removes valid observations
+- **H4**: Single-rule evaluation — one rule per request, parallel execution (see [04_NEXT_HYPOTHESIS.md](04_NEXT_HYPOTHESIS.md))
 - **Severity tuning**: Adjust prompt or policy for correct severity classification
+
+## Experiment complete
+
+This experiment demonstrated:
+1. How infrastructure failures can masquerade as model behavior
+2. The importance of verifying the model is actually called before analyzing results
+3. That prompt framing significantly affects model output (passive → active traversal)
+4. A reproducible methodology for hypothesis-driven pipeline debugging

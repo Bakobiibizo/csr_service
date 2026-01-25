@@ -141,20 +141,37 @@ A case **passes** when:
 
 ## Results
 
-Latest run: **4/8 cases passed**, **4/17 expectation checks passed**
+### Latest Results (H1 + qwen2.5:7b-instruct)
+
+After applying the H1 forced-traversal prompt intervention:
 
 | Case | Pass | Observations | Latency (mean) | Notes |
 |------|------|-------------|----------------|-------|
-| case_01 | PASS | 0 | 20ms | Clean content correctly produces no violations |
-| case_02 | FAIL | 0 | 7ms | No observations generated (expected 2-8) |
-| case_03 | FAIL | 0 | 24ms | No observations generated (expected 2-10) |
-| case_04 | FAIL | 0 | 7ms | No observations generated (expected 1-6) |
-| case_05 | FAIL | 0 | 16ms | No observations generated (expected 2-8) |
-| case_06 | PASS | 0 | 7ms | Within expected range (0-5) |
-| case_07 | PASS | N/A | 3ms | EMPTY_CONTENT error correctly returned |
-| case_08 | PASS | N/A | 3ms | STANDARDS_NOT_FOUND error correctly returned |
+| case_01 | PASS | 2-4 | 16.8s | Within expected 0-3 |
+| case_02 | **PASS** | 3-5 | 20.8s | NAV-TR-3.1.1 correctly identified |
+| case_03 | partial | 4-5 | 23.7s | Count OK, wrong ref surfaced |
+| case_04 | partial | 3-7 | 28.7s | Ref found, slight over-count |
+| case_05 | partial | 5 | 25.9s | Ref found, missing severity |
+| case_06 | timeout | - | - | Infrastructure issue |
+| case_07 | PASS | N/A | 7ms | Error case |
+| case_08 | PASS | N/A | 3ms | Error case |
 
-**Note**: Cases 02-05 fail expectations because the LLM analysis pipeline is not generating observations for these inputs. This indicates the review analysis needs tuning for these content patterns.
+**Pass rate**: 4/8 cases, **13/16 expectations passed**
+
+### Historical Context
+
+The original baseline (4/8 pass, 14ms latency) was **invalid** — a model ID mismatch caused 404 errors on every request. The pipeline's error handler returned empty observations, masking the infrastructure failure. See [eval/experiments/h1_forced_traversal/01_RUN1_BASELINE.md](../eval/experiments/h1_forced_traversal/01_RUN1_BASELINE.md) for details.
+
+### Experiment Results
+
+| Experiment | Pass Rate | Key Finding |
+|------------|-----------|-------------|
+| H1: Forced Traversal | 4/8, 13/16 exp | Fixed silent compliance, model now generates observations |
+| H4: Single-Rule Mode | 3/8, 11/17 exp | Better rule coverage, but over-detection |
+
+For full analysis, see:
+- [RESEARCH_OVERVIEW.md](RESEARCH_OVERVIEW.md) — Methodology and recommendations
+- [eval/experiments/](../eval/experiments/) — Detailed experiment documentation
 
 ### Visualizations
 

@@ -99,9 +99,57 @@ Review the content above against the provided standards rules. Return your obser
 """
 
 
+_DEFAULT_SINGLE_RULE_SYSTEM_PROMPT = """You are a content standards reviewer. You evaluate content against a SINGLE standard rule and return structured observations.
+
+You MUST respond with raw JSON only. No markdown, no code fences, no explanation text.
+
+Your response must match this exact schema:
+{
+  "observations": [
+    {
+      "span": [start_char, end_char] or null,
+      "severity": "info" | "warning" | "violation",
+      "category": "clarity" | "accuracy" | "structure" | "accessibility" | "pedagogy" | "compliance" | "other",
+      "standard_ref": "the rule's standard_ref",
+      "message": "clear description of the issue",
+      "suggested_fix": "how to fix it" or null,
+      "confidence": 0.0 to 1.0
+    }
+  ]
+}
+
+Rules:
+- Evaluate ONLY against the single rule provided
+- span must be [start, end] character offsets where 0 <= start < end <= content_length, or null
+- severity: "violation" for clear breaches, "warning" for likely issues, "info" for suggestions
+- If the content does not violate this specific rule, return {"observations": []}
+"""
+
+_DEFAULT_SINGLE_RULE_USER_TEMPLATE = """## Rule to Evaluate
+
+[{standard_ref}] {title}
+
+{body}
+
+## Strictness
+
+{strictness_instruction}
+
+## Content (length: {content_length} characters)
+
+{content}
+
+## Task
+
+Does the content above violate this specific rule? If yes, identify the exact text span(s) that violate it and report as observations. If the content complies with this rule, return empty observations.
+"""
+
+
 class PromptsConfig(BaseModel):
     system_prompt: str = _DEFAULT_SYSTEM_PROMPT
     user_prompt_template: str = _DEFAULT_USER_PROMPT_TEMPLATE
+    single_rule_system_prompt: str = _DEFAULT_SINGLE_RULE_SYSTEM_PROMPT
+    single_rule_user_template: str = _DEFAULT_SINGLE_RULE_USER_TEMPLATE
     rule_format: str = "- [{standard_ref}] {title}: {body}"
     strictness_instructions: dict[str, str] = {
         "low": "Be lenient. Only flag clear, unambiguous issues.",
@@ -181,6 +229,8 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     host: str = "0.0.0.0"
     port: int = 9020
+    single_rule_mode: bool = False
+    single_rule_parallel: bool = True
 
 
 settings = Settings()

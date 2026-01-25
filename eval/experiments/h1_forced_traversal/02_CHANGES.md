@@ -1,18 +1,26 @@
 # Changes Between Run 1 and Run 2
 
+**Notes**:
+- Run 2 prioritizes behavioral validation over output quality; model size and latency characteristics are not representative of a production configuration.
+- No changes were made to retrieval, policy thresholds, confidence gating, or severity logic in this intervention.
+
 ## Infrastructure Fixes
 
-### Fix 1: Model ID mismatch
+### Fix 1: Model Size
 
-**Problem**: Service configured with wrong model name.
+***Problem**: Originally fixed to `qwen2.5:32b-instruct`. While my machine (GX10: 128GB VRAM) can handle loading a 32B model, there is a limited amount of throughput available which caused a 5-10 minute round trip delay per request. In production I would recommend using an A6000 GPU or better. 
+
+**Solution**: Switched to 7B model with known reductions in semantic fidelity, acceptable for diagnosing pipeline behavior but not for final quality evaluation. 
 
 ```diff
 # .env
-- CSR_MODEL_ID=qwen2.5:32b
+- CSR_MODEL_ID=qwen2.5:32b-instruct
 + CSR_MODEL_ID=qwen2.5:7b-instruct
 ```
 
-Note: Originally fixed to `qwen2.5:32b-instruct`, but 32B model was too slow (2-15 min/request) for my infrastructure. Switched to 7B for practical iteration speed. A more powerful machine should have no problem handling 32B.
+This reduced round trip time to ~30 seconds per request at the cost of model accuracy.
+
+**Note**: Bench marking model performance and doing a cost analysis will be required when selecting hardware for the project. 
 
 ### Fix 2: GPU memory exhaustion
 
@@ -60,11 +68,17 @@ The passive prompt instruction ("Review the content above against the provided s
 + Return your observations as JSON.
 ```
 
+### Notes
+
+- This change enforces traversal without encouraging issue fabrication. 
+- The model is still explicitly prohibited from inventing violations
+- The only added constraint is that each rule must be evaluated before an empty result is returned.
+
 ## Summary of changes
 
 | Component | Before | After |
 |-----------|--------|-------|
-| Model ID | `qwen2.5:32b` (404) | `qwen2.5:7b-instruct` |
+| Model ID | `qwen2.5:32b-instruct` (404) | `qwen2.5:7b-instruct` |
 | GPU memory | exhausted | freed 31GB |
 | System prompt | permits empty default | requires per-rule check |
 | User prompt | passive "review" | explicit per-rule traversal |

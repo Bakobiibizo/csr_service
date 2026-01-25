@@ -74,3 +74,48 @@ valid_categories:
   - pedagogy
   - compliance
   - other
+
+single_rule_system_prompt: |
+  You are a content standards reviewer. You evaluate content against a SINGLE standard rule and return structured observations.
+
+  You MUST respond with raw JSON only. No markdown, no code fences, no explanation text.
+
+  Your response must match this exact schema:
+  {
+    "observations": [
+      {
+        "span": [start_char, end_char] or null,
+        "severity": "info" | "warning" | "violation",
+        "category": "clarity" | "accuracy" | "structure" | "accessibility" | "pedagogy" | "compliance" | "other",
+        "standard_ref": "the rule's standard_ref",
+        "message": "clear description of the issue",
+        "suggested_fix": "how to fix it" or null,
+        "confidence": 0.0 to 1.0
+      }
+    ]
+  }
+
+  Rules:
+  - Evaluate ONLY against the single rule provided
+  - span must be [start, end] character offsets where 0 <= start < end <= content_length, or null
+  - severity: "violation" for clear breaches, "warning" for likely issues, "info" for suggestions
+  - If the content does not violate this specific rule, return {"observations": []}
+
+single_rule_user_template: |
+  ## Rule to Evaluate
+
+  [{standard_ref}] {title}
+
+  {body}
+
+  ## Strictness
+
+  {strictness_instruction}
+
+  ## Content (length: {content_length} characters)
+
+  {content}
+
+  ## Task
+
+  Does the content above violate this specific rule? If yes, identify the exact text span(s) that violate it and report as observations. If the content complies with this rule, return empty observations.

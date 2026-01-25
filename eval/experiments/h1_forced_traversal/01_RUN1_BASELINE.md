@@ -4,6 +4,7 @@
 **Model**: qwen2.5:32b (configured), none (actual)
 **Repeats**: 5 per case
 
+
 ## Configuration
 
 ```yaml

@@ -4,6 +4,7 @@
 **Model**: qwen2.5:7b-instruct
 **Repeats**: 3 per case
 
+
 ## Configuration
 
 ```yaml

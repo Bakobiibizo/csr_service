@@ -64,6 +64,8 @@ All settings are configured via environment variables with `CSR_` prefix:
 | `CSR_MAX_CONTENT_LENGTH` | `50000` | Maximum content length (characters) |
 | `CSR_POLICY_VERSION` | `1.0.0` | Policy version reported in responses |
 | `CSR_PORT` | `9020` | Default server port |
+| `CSR_SINGLE_RULE_MODE` | `false` | Evaluate one rule per request (parallel) |
+| `CSR_SINGLE_RULE_PARALLEL` | `true` | Run single-rule evaluations in parallel |
 
 ## API Endpoints
 
@@ -221,3 +223,25 @@ The service never breaks the response schema:
 | Content too long | HTTP 422 `CONTENT_TOO_LONG` |
 | Unknown standards set | HTTP 422 `STANDARDS_NOT_FOUND` |
 | Missing/invalid auth | HTTP 401 `AUTH_FAILED` |
+
+## Research & Experiments
+
+This project uses hypothesis-driven development to systematically improve the AI pipeline. See:
+
+- **[docs/RESEARCH_OVERVIEW.md](docs/RESEARCH_OVERVIEW.md)** — Full analysis of methodology, experiments, and findings
+- **[eval/experiments/](eval/experiments/)** — Individual experiment documentation and results
+
+### Key Findings
+
+| Experiment | Hypothesis | Result |
+|------------|-----------|--------|
+| H1: Forced Traversal | Passive prompts cause under-detection | **Supported** — Per-rule evaluation fixed silent compliance |
+| H4: Single-Rule Mode | Narrower scope improves accuracy | **Partial** — Better coverage, but over-detection |
+
+### Current Status
+
+The system successfully identifies standards violations but requires calibration:
+- Prompt engineering significantly impacts detection (H1)
+- Evaluation scope affects precision/recall tradeoff (H4)
+- Severity classification needs improvement
+- See [RESEARCH_OVERVIEW.md](docs/RESEARCH_OVERVIEW.md) for detailed recommendations
