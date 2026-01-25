@@ -2,10 +2,6 @@
 
 Artificial Intelligence (AI)-powered Application Programming Interface (API) that reviews instructional content against standards rules and returns structured, User Interface (UI)-ready observations with traceable citations.
 
-## Architecture
-
-![Request Flow](docs/request-flow.png)
-
 ## Quick Start
 
 ```bash
@@ -108,6 +104,8 @@ Reviews content against a standards set. Requires `Authorization: Bearer <token>
 See [docs/API.md](docs/API.md) for full Application Programming Interface (API) reference.
 
 ## How It Works
+
+![Request Flow](docs/request-flow.png)
 
 1. **Retrieval** - Term Frequency–Inverse Document Frequency (TF-IDF) vectorizes the input content and retrieves the top-k most relevant rules from the standards set (k varies by strictness: low=6, medium=10, high=14)
 
