@@ -10,7 +10,7 @@
 - experiment(1 & 2): ran 1 & 2 and gathered results
 - added evaluation and ran them
 - chore(uv): added lock
-- feature(tests): added edge cases)
+- feature(tests): added edge cases
 - feature(config): updated the remaining configurable parameters to be centralized and read from the env
 - feature(config): Made the configurable elements in the application configurable rather that hard coded
 

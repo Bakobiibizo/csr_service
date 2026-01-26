@@ -27,6 +27,8 @@ import sys
 import time
 from pathlib import Path
 
+from src.csr_service.logging import logger, setup_logging
+
 
 def load_results(path: str) -> dict:
     with open(path) as f:
@@ -137,23 +139,28 @@ def print_comparison(comparison: dict) -> None:
     """Print a human-readable comparison report."""
     summary = comparison["summary"]
 
-    print("=" * 70)
-    print("EXPERIMENT COMPARISON REPORT")
-    print("=" * 70)
-    print()
-    print(f"Cases compared: {summary['cases_compared']}")
-    print(
-        f"Pass rate: {summary['baseline_pass_rate']} (baseline) -> {summary['modified_pass_rate']} (modified)"
+    logger.info("%s", "=" * 70)
+    logger.info("EXPERIMENT COMPARISON REPORT")
+    logger.info("%s", "=" * 70)
+    logger.info("")
+    logger.info("Cases compared: %s", summary["cases_compared"])
+    logger.info(
+        "Pass rate: %s (baseline) -> %s (modified)",
+        summary["baseline_pass_rate"],
+        summary["modified_pass_rate"],
     )
-    print(
-        f"Improved: {summary['improved']}  |  Regressed: {summary['regressed']}  |  Unchanged: {summary['unchanged']}"
+    logger.info(
+        "Improved: %s  |  Regressed: %s  |  Unchanged: %s",
+        summary["improved"],
+        summary["regressed"],
+        summary["unchanged"],
     )
-    print(f"Total observation delta: {summary['total_observation_delta']:+d}")
-    print(f"Total latency delta: {summary['total_latency_delta_ms']:+d}ms")
-    print()
-    print("-" * 70)
-    print(f"{'Case':<12} {'Pass':<22} {'Obs (B->M)':<16} {'Latency (B->M)':<20}")
-    print("-" * 70)
+    logger.info("Total observation delta: %+d", summary["total_observation_delta"])
+    logger.info("Total latency delta: %+dms", summary["total_latency_delta_ms"])
+    logger.info("")
+    logger.info("%s", "-" * 70)
+    logger.info("%s", f"{'Case':<12} {'Pass':<22} {'Obs (B->M)':<16} {'Latency (B->M)':<20}")
+    logger.info("%s", "-" * 70)
 
     for delta in comparison["deltas"]:
         case_id = delta["case_id"]
@@ -168,21 +175,27 @@ def print_comparison(comparison: dict) -> None:
         obs_str = f"{obs['baseline']}->{obs['modified']} ({obs['delta']:+d})"
         lat_str = f"{lat['baseline']}->{lat['modified']}ms ({lat['delta']:+d})"
 
-        print(f"{case_id:<12} {pass_str:<22} {obs_str:<16} {lat_str:<20}")
+        logger.info("%s", f"{case_id:<12} {pass_str:<22} {obs_str:<16} {lat_str:<20}")
 
-    print("-" * 70)
-    print()
+    logger.info("%s", "-" * 70)
+    logger.info("")
 
     # Detail on flipped expectations
     flipped_cases = [d for d in comparison["deltas"] if d["expectations"]["flipped"]]
     if flipped_cases:
-        print("EXPECTATION CHANGES:")
+        logger.info("EXPECTATION CHANGES:")
         for delta in flipped_cases:
-            print(f"  {delta['case_id']}:")
+            logger.info("  %s:", delta["case_id"])
             for check, vals in delta["expectations"]["flipped"].items():
                 direction = "PASS" if vals["modified"] else "FAIL"
-                print(f"    {check}: {vals['baseline']} -> {vals['modified']} ({direction})")
-        print()
+                logger.info(
+                    "    %s: %s -> %s (%s)",
+                    check,
+                    vals["baseline"],
+                    vals["modified"],
+                    direction,
+                )
+        logger.info("")
 
 
 def run_eval(base_url: str, token: str, cases_dir: str, n: int, output_path: str) -> dict:
@@ -203,7 +216,7 @@ def run_eval(base_url: str, token: str, cases_dir: str, n: int, output_path: str
         str(output_path),
     ]
     cmd_display = " ".join(shlex.quote(arg) for arg in cmd)
-    print(f"  Running: {cmd_display}")
+    logger.info("  Running: %s", cmd_display)
     result = subprocess.run(
         cmd,
         capture_output=True,
@@ -212,9 +225,9 @@ def run_eval(base_url: str, token: str, cases_dir: str, n: int, output_path: str
         check=False,
         shell=False,
     )
-    print(result.stdout)
+    logger.info("%s", result.stdout)
     if result.returncode != 0:
-        print(f"  STDERR: {result.stderr}", file=sys.stderr)
+        logger.error("  STDERR: %s", result.stderr)
         sys.exit(1)
 
     with open(output_path) as f:
@@ -229,10 +242,10 @@ def run_experiment(args):
     config_path = Path("config/prompts.yaml")
 
     if not baseline_prompts.exists():
-        print(f"ERROR: {baseline_prompts} not found")
+        logger.error("ERROR: %s not found", baseline_prompts)
         sys.exit(1)
     if not modified_prompts.exists():
-        print(f"ERROR: {modified_prompts} not found")
+        logger.error("ERROR: %s not found", modified_prompts)
         sys.exit(1)
 
     baseline_output = str(experiment_dir / "baseline_results.json")
@@ -240,33 +253,33 @@ def run_experiment(args):
     comparison_output = str(experiment_dir / "comparison.json")
 
     # Phase 1: Baseline
-    print("\n[PHASE 1] Running baseline evaluation...")
-    print(f"  Config: {baseline_prompts}")
+    logger.info("\n[PHASE 1] Running baseline evaluation...")
+    logger.info("  Config: %s", baseline_prompts)
     shutil.copy2(str(baseline_prompts), str(config_path))
-    print("  NOTE: Service must be restarted to pick up config change.")
-    print(f"  Waiting {args.restart_delay}s for service restart...")
+    logger.info("  NOTE: Service must be restarted to pick up config change.")
+    logger.info("  Waiting %ss for service restart...", args.restart_delay)
     time.sleep(args.restart_delay)
 
     baseline = run_eval(args.base_url, args.token, args.cases, args.n, baseline_output)
 
     # Phase 2: Modified
-    print("\n[PHASE 2] Running modified evaluation...")
-    print(f"  Config: {modified_prompts}")
+    logger.info("\n[PHASE 2] Running modified evaluation...")
+    logger.info("  Config: %s", modified_prompts)
     shutil.copy2(str(modified_prompts), str(config_path))
-    print("  NOTE: Service must be restarted to pick up config change.")
-    print(f"  Waiting {args.restart_delay}s for service restart...")
+    logger.info("  NOTE: Service must be restarted to pick up config change.")
+    logger.info("  Waiting %ss for service restart...", args.restart_delay)
     time.sleep(args.restart_delay)
 
     modified = run_eval(args.base_url, args.token, args.cases, args.n, modified_output)
 
     # Phase 3: Compare
-    print("\n[PHASE 3] Comparing results...")
+    logger.info("\n[PHASE 3] Comparing results...")
     comparison = compare_results(baseline, modified)
     print_comparison(comparison)
 
     with open(comparison_output, "w") as f:
         json.dump(comparison, f, indent=2)
-    print(f"Comparison saved to: {comparison_output}")
+    logger.info("Comparison saved to: %s", comparison_output)
 
     # Restore modified config (the intervention we want to keep)
     shutil.copy2(str(modified_prompts), str(config_path))
@@ -283,10 +296,11 @@ def compare_command(args):
     if args.output:
         with open(args.output, "w") as f:
             json.dump(comparison, f, indent=2)
-        print(f"Comparison saved to: {args.output}")
+        logger.info("Comparison saved to: %s", args.output)
 
 
 def main():
+    setup_logging()
     parser = argparse.ArgumentParser(description="CSR Experiment Runner")
     subparsers = parser.add_subparsers(dest="command", help="Command to run")
 

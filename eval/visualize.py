@@ -17,6 +17,8 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
+from src.csr_service.logging import logger, setup_logging
+
 
 def load_results(results_path: str) -> dict:
     return json.loads(Path(results_path).read_text())
@@ -208,20 +210,22 @@ def generate_all(results_path: str) -> None:
 
 
 def main():
+    setup_logging()
+
     if len(sys.argv) < 2:
-        print("Usage: python -m eval.visualize <results.json>")
+        logger.error("Usage: python -m eval.visualize <results.json>")
         sys.exit(1)
 
     results_path = sys.argv[1]
     if not Path(results_path).exists():
-        print(f"File not found: {results_path}")
+        logger.error("File not found: %s", results_path)
         sys.exit(1)
 
     generate_all(results_path)
     output_dir = Path(results_path).parent
-    print(f"Generated visualizations in: {output_dir}")
+    logger.info("Generated visualizations in: %s", output_dir)
     for png in sorted(output_dir.glob("*.png")):
-        print(f"  {png.name}")
+        logger.info("  %s", png.name)
 
 
 if __name__ == "__main__":

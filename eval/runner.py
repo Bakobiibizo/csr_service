@@ -19,6 +19,7 @@ from eval.checker import (
     compute_latency_stats,
     validate_schema,
 )
+from src.csr_service.logging import logger, setup_logging
 
 DEFAULT_BASE_URL = "http://localhost:9020"
 DEFAULT_TOKEN = "demo-token"
@@ -71,7 +72,7 @@ def evaluate_case(base_url: str, token: str, case: dict, n: int) -> tuple[dict, 
     case_desc = case.get("description", "")
     expect_error = case.get("expect_error", False)
     expectations = case.get("expectations", {})
-    print(f"\n[{case_id}] {case_desc}")
+    logger.info("\n[%s] %s", case_id, case_desc)
 
     latencies: list[int] = []
     runs = []
@@ -91,20 +92,20 @@ def evaluate_case(base_url: str, token: str, case: dict, n: int) -> tuple[dict, 
     # Error case handling
     if "_status_code" in first:
         if expect_error:
-            print(f"  Expected error: PASS (HTTP {first['_status_code']})")
+            logger.info("  Expected error: PASS (HTTP %s)", first["_status_code"])
             exp_results = check_expectations(first, expectations, expect_error=True)
             case_result["pass"] = True
             case_result["expectation_results"] = exp_results
             _print_expectations(exp_results)
         else:
-            print(f"  FAIL (HTTP {first['_status_code']}): {first.get('_error', '')[:100]}")
+            logger.error("  FAIL (HTTP %s): %s", first["_status_code"], first.get("_error", "")[:100])
             case_result["pass"] = False
             case_result["expectation_results"] = []
         _print_latency(case_latency)
         return case_result, latencies
 
     if "_error" in first and "_status_code" not in first:
-        print(f"  FAIL (connection error): {first['_error'][:100]}")
+        logger.error("  FAIL (connection error): %s", first["_error"][:100])
         case_result["pass"] = False
         case_result["expectation_results"] = []
         return case_result, latencies
@@ -112,7 +113,7 @@ def evaluate_case(base_url: str, token: str, case: dict, n: int) -> tuple[dict, 
     # Schema validation
     schema_ok, schema_err = validate_schema(first)
     if not schema_ok:
-        print(f"  Schema: FAIL - {schema_err[:100]}")
+        logger.error("  Schema: FAIL - %s", schema_err[:100])
         case_result["pass"] = False
         case_result["expectation_results"] = []
         return case_result, latencies
@@ -121,12 +122,18 @@ def evaluate_case(base_url: str, token: str, case: dict, n: int) -> tuple[dict, 
     repeatability = check_repeatability(runs)
     obs_counts = [len(r.get("observations", [])) for r in runs]
 
-    print("  Schema: PASS")
-    print(
-        f"  Observations: {obs_counts[0]} (range: {min(obs_counts)}-{max(obs_counts)} across {n} runs)"
+    logger.info("  Schema: PASS")
+    logger.info(
+        "  Observations: %s (range: %s-%s across %s runs)",
+        obs_counts[0],
+        min(obs_counts),
+        max(obs_counts),
+        n,
     )
-    print(
-        f"  Span stability: {repeatability['span_stability']:.0%}  |  Severity stability: {repeatability['severity_stability']:.0%}"
+    logger.info(
+        "  Span stability: %.0f%%  |  Severity stability: %.0f%%",
+        repeatability["span_stability"] * 100,
+        repeatability["severity_stability"] * 100,
     )
     _print_latency(case_latency)
 
@@ -144,16 +151,16 @@ def evaluate_case(base_url: str, token: str, case: dict, n: int) -> tuple[dict, 
 
 
 def _print_latency(latency: dict) -> None:
-    print(f"  Latency: mean={latency['mean_ms']}ms, p95={latency['p95_ms']}ms")
+    logger.info("  Latency: mean=%sms, p95=%sms", latency["mean_ms"], latency["p95_ms"])
 
 
 def _print_expectations(exp_results: list[dict]) -> None:
     if not exp_results:
         return
-    print("  Expectations:")
+    logger.info("  Expectations:")
     for r in exp_results:
         status = "PASS" if r["passed"] else "FAIL"
-        print(f"    {r['check']}: {status} ({r['detail']})")
+        logger.info("    %s: %s (%s)", r["check"], status, r["detail"])
 
 
 def main():
@@ -168,12 +175,12 @@ def main():
 
     cases = load_cases(args.cases)
     if not cases:
-        print(f"No cases found in {args.cases}")
+        logger.error("No cases found in %s", args.cases)
         sys.exit(1)
 
-    print(f"CSR Evaluation Harness - Backend: {args.backend}")
-    print(f"Cases: {len(cases)}, Repeats: {args.n}")
-    print("=" * 60)
+    logger.info("CSR Evaluation Harness - Backend: %s", args.backend)
+    logger.info("Cases: %s, Repeats: %s", len(cases), args.n)
+    logger.info("%s", "=" * 60)
 
     all_latencies: list[int] = []
     results = []
@@ -184,7 +191,7 @@ def main():
         if case_latencies:
             all_latencies.extend(case_latencies)
 
-    print("\n" + "=" * 60)
+    logger.info("\n%s", "=" * 60)
     passed = sum(1 for r in results if r.get("pass"))
     total_expectations = sum(len(r.get("expectation_results", [])) for r in results)
     expectations_passed = sum(
@@ -192,11 +199,13 @@ def main():
     )
     overall_latency = compute_latency_stats(all_latencies)
 
-    print(f"Results: {passed}/{len(results)} cases passed")
+    logger.info("Results: %s/%s cases passed", passed, len(results))
     if total_expectations > 0:
-        print(f"Expectations: {expectations_passed}/{total_expectations} checks passed")
-    print(
-        f"Latency (overall): mean={overall_latency['mean_ms']}ms, p95={overall_latency['p95_ms']}ms"
+        logger.info("Expectations: %s/%s checks passed", expectations_passed, total_expectations)
+    logger.info(
+        "Latency (overall): mean=%sms, p95=%sms",
+        overall_latency["mean_ms"],
+        overall_latency["p95_ms"],
     )
 
     if args.json_output:
@@ -213,19 +222,20 @@ def main():
             "results": results,
         }
         output_path.write_text(json.dumps(output_data, indent=2))
-        print(f"\nResults saved to: {args.json_output}")
+        logger.info("\nResults saved to: %s", args.json_output)
 
         # Auto-generate visualizations
         try:
             from eval.visualize import generate_all
 
             generate_all(str(output_path))
-            print("Visualizations generated in:", str(output_path.parent))
+            logger.info("Visualizations generated in: %s", str(output_path.parent))
         except ImportError:
-            print("(matplotlib not available, skipping visualizations)")
+            logger.info("(matplotlib not available, skipping visualizations)")
         except Exception as e:
-            print(f"(visualization error: {e})")
+            logger.error("(visualization error: %s)", e)
 
 
 if __name__ == "__main__":
+    setup_logging()
     main()
