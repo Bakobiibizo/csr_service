@@ -28,4 +28,4 @@ async def require_auth(
             status_code=401,
             detail={"code": "AUTH_FAILED", "message": "Invalid or missing bearer token"},
         )
-    return credentials.credentials
+    return supplied
