@@ -9,6 +9,26 @@ class TestHealthRoute:
         assert data["status"] == "ok"
         assert data["standards_loaded"] == 1
 
+    def test_ready_checks_provider(self, client):
+        response = client.get("/ready")
+        assert response.status_code == 200
+        assert response.json()["provider_ready"] is True
+
+    def test_ready_returns_503_when_provider_fails(self, client):
+        class Unavailable:
+            async def is_ready(self):
+                return False
+
+        client.app.state.model_client = Unavailable()
+        response = client.get("/ready")
+        assert response.status_code == 503
+        assert response.json() == {
+            "status": "not_ready",
+            "ready": False,
+            "standards_ready": True,
+            "provider_ready": False,
+        }
+
 
 class TestStandardsRoute:
     def test_list_standards(self, client):

@@ -22,6 +22,15 @@ class ModelClient:
         )
         self.model_id = settings.model_id
 
+    async def is_ready(self) -> bool:
+        """Verify that the configured provider is reachable and exposes the model."""
+        try:
+            models = await self.client.models.list()
+            return any(model.id == self.model_id for model in models.data)
+        except Exception as exc:
+            logger.warning("Model readiness probe failed: %s", type(exc).__name__)
+            return False
+
     async def generate(self, system_prompt: str, user_prompt: str) -> tuple[str, Usage]:
         try:
             kwargs: dict = {
