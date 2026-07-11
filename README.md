@@ -222,4 +222,12 @@ The system successfully identifies standards violations but requires calibration
 - Severity classification needs improvement
 - See [RESEARCH_OVERVIEW.md](docs/RESEARCH_OVERVIEW.md) for detailed recommendations
 
-**Note**: This project is meant as a proof of concept demo and should not be used in production. All data is synthetic and for demonstration purposes only.
+## Production safeguards
+
+- Set `CSR_AUTH_TOKEN` (or `CSR_AUTH_TOKENS` during token rotation) to a long random value. The demo default is intentionally unsuitable for an exposed deployment.
+- Reviews, per-rule model calls, retrieved rules, content size, and total duration are bounded. Tune the `CSR_MAX_*`, `CSR_SINGLE_RULE_CONCURRENCY`, and `CSR_REQUEST_TIMEOUT` settings for available inference capacity.
+- Raw reviewed content is not persisted or logged. Optional `CSR_AUDIT_LOG_PATH` records only request metadata plus a SHA-256 content fingerprint.
+- `/health` is a liveness endpoint and `/ready` reports whether standards and the provider client initialized.
+- The container runs unprivileged with a read-only filesystem and no Linux capabilities.
+
+The model is advisory: consumers should display the cited rule and content span and retain human review for consequential decisions.

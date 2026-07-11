@@ -18,6 +18,16 @@ class Observation(BaseModel):
     rationale: str | None = None
     standard_excerpt: str | None = None
     confidence: float = Field(ge=0.0, le=1.0)
+    evidence: list["Evidence"] = Field(default_factory=list)
+
+
+class Evidence(BaseModel):
+    """Traceable evidence supporting an observation."""
+
+    kind: Literal["content_span", "standard", "metadata"]
+    ref: str
+    span: list[int] | None = None
+    excerpt: str | None = None
 
 
 class Usage(BaseModel):

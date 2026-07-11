@@ -4,8 +4,22 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     image: csr-service:local
-    network_mode: host
-    env_file: .env
+    ports:
+      - "${CSR_PORT:-9020}:9020"
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      CSR_OLLAMA_BASE_URL: ${CSR_OLLAMA_BASE_URL:-http://host.docker.internal:11434/v1}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
     restart: unless-stopped
 
   core:

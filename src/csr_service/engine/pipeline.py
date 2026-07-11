@@ -35,6 +35,8 @@ from .prompt import (
     get_system_prompt,
 )
 
+_single_rule_semaphore = asyncio.Semaphore(settings.single_rule_concurrency)
+
 
 async def _evaluate_single_rule(
     content: str,
@@ -47,7 +49,8 @@ async def _evaluate_single_rule(
     user_prompt = build_single_rule_prompt(content, rule, strictness)
 
     try:
-        raw_output, usage = await model_client.generate(system_prompt, user_prompt)
+        async with _single_rule_semaphore:
+            raw_output, usage = await model_client.generate(system_prompt, user_prompt)
     except Exception as e:
         logger.error(f"Single-rule model failure for {rule.standard_ref}: {e}")
         return [], Usage(), Error(code="MODEL_FAILURE", message=f"{rule.standard_ref}: {e}")
@@ -108,7 +111,7 @@ async def run_review(
     usage = Usage()
 
     # Retrieve relevant rules
-    rules = retriever.retrieve(request.content, request.strictness)
+    rules = retriever.retrieve(request.content, request.strictness)[: settings.max_rules_per_review]
     known_refs = {r.standard_ref for r in rules}
 
     # Choose execution mode

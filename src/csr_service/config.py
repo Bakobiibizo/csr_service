@@ -230,7 +230,12 @@ class Settings(BaseSettings):
     model_json_mode: bool = True
     standards_dir: str = "standards"
     auth_token: str = "demo-token"
+    auth_tokens: str = ""
     max_content_length: int = 50000
+    max_concurrent_reviews: int = 4
+    max_rules_per_review: int = 20
+    request_timeout: float = 120.0
+    audit_log_path: str = ""
     policy_version: str = "1.0.0"
     policy_config_path: str = "config/policy.yaml"
     prompts_config_path: str = "config/prompts.yaml"
@@ -240,6 +245,7 @@ class Settings(BaseSettings):
     port: int = 9020
     single_rule_mode: bool = False
     single_rule_parallel: bool = True
+    single_rule_concurrency: int = 4
 
 
 settings = Settings()

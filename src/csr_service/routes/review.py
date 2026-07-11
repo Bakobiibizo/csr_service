@@ -6,6 +6,12 @@ pipeline, and returns structured observations. Requires bearer token auth.
 Validates content length and standards set existence before processing.
 """
 
+import asyncio
+import hashlib
+import json
+from datetime import UTC, datetime
+from pathlib import Path
+
 from fastapi import APIRouter, Depends, HTTPException, Request
 
 from ..auth import require_auth
@@ -16,6 +22,25 @@ from ..schemas.request import ReviewRequest
 from ..schemas.response import ReviewResponse
 
 router = APIRouter(prefix="/v1")
+_review_slots = asyncio.Semaphore(settings.max_concurrent_reviews)
+
+
+def _audit(request_id: str, body: ReviewRequest, status: str) -> None:
+    """Persist privacy-safe operational metadata; content is never stored."""
+    if not settings.audit_log_path:
+        return
+    record = {
+        "timestamp": datetime.now(UTC).isoformat(),
+        "request_id": request_id,
+        "standards_set": body.standards_set,
+        "content_sha256": hashlib.sha256(body.content.encode()).hexdigest(),
+        "content_length": len(body.content),
+        "status": status,
+    }
+    path = Path(settings.audit_log_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a", encoding="utf-8") as stream:
+        stream.write(json.dumps(record, separators=(",", ":")) + "\n")
 
 
 @router.post("/review", response_model=ReviewResponse)
@@ -63,9 +88,20 @@ async def review(
             detail={"code": "MODEL_UNAVAILABLE", "message": "Model client not initialized"},
         )
 
-    return await run_review(
-        request=body,
-        standards_set=standards_sets[body.standards_set],
-        retriever=retrievers[body.standards_set],
-        model_client=model_client,
-    )
+    try:
+        async with asyncio.timeout(settings.request_timeout):
+            async with _review_slots:
+                response = await run_review(
+                    request=body,
+                    standards_set=standards_sets[body.standards_set],
+                    retriever=retrievers[body.standards_set],
+                    model_client=model_client,
+                )
+        _audit(rid, body, "completed")
+        return response
+    except TimeoutError as exc:
+        _audit(rid, body, "timeout")
+        raise HTTPException(
+            status_code=504,
+            detail={"code": "REVIEW_TIMEOUT", "message": "Review exceeded its time limit"},
+        ) from exc
